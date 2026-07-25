@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="KirasaEngine.Editor.App"
+             xmlns:local="using:KirasaEngine.Editor"
+             RequestedThemeVariant="Dark">
+
+    <Application.DataTemplates>
+        
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
