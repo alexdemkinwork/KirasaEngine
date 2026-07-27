@@ -4,26 +4,35 @@ public partial class MainWindow : Window
 {
     private MainViewModel ViewModel => (DataContext as MainViewModel)!;
     private RenderFrame? _renderFrame;
-    
+
     public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
-        
         DataContext = viewModel;
-        //Frame.Bind(Image.SourceProperty, new Binding(nameof(ViewModel.RenderFrameViewModel._sourceFrame)));
+        Render = new(ViewModel.RenderFrameViewModel);
     }
 
-    private void Button_OnClick(object? sender, RoutedEventArgs e)
+    private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (_renderFrame != null)
+        RenderScene scene = new()
         {
-            // Отменяем предыдущий рендеринг
-            ViewModel.RenderFrameViewModel.CancelRendering();
-            
-            _renderFrame = null;
-        }
+            Title = string.Empty,
+            BackgroundColor = new() { Hex = "#000000" },
+            TypeBackend = TypeBackendRender.Raylib,
+            ShowFrame = true,
+            HeightResolution = 720,
+            WidthResolution = 1080,
+            RenderTexture = true,
+            Layers = new()
+        };
+        
+        Render.ViewModel.UpdateScene(scene);
+    }
 
-        _renderFrame = new RenderFrame(ViewModel.RenderFrameViewModel);
-       
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        ViewModel.RenderFrameViewModel.Dispose();
+        Render.ViewModel.Dispose();
     }
 }

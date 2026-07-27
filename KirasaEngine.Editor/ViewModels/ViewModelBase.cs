@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-
-namespace KirasaEngine.Editor.ViewModels;
+﻿namespace KirasaEngine.Editor.ViewModels;
 
 public abstract class ViewModelBase : ObservableObject
 {

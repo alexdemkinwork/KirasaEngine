@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:controls="using:KirasaEngine.Editor.ViewModels.Controls"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:enums="using:KirasaEngine.Editor.Domain.Enums"
+             xmlns:local="using:KirasaEngine.Editor.Resource.Controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:converters="using:KirasaEngine.Editor.Infrastructure.Converters"
+             x:Class="KirasaEngine.Editor.Resource.Controls.Icon">
+    <UserControl.Resources>
+        <converters:IconTypeToPathGeometryConverter x:Key="IconTypeToPathGeometry"/>
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <controls:IconViewModel/>
+    </UserControl.DataContext>
+    <Viewbox Stretch="Uniform">
+        
+    </Viewbox>
+  
+</UserControl>

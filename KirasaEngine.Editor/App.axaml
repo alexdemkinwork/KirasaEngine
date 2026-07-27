@@ -3,7 +3,14 @@
              x:Class="KirasaEngine.Editor.App"
              xmlns:local="using:KirasaEngine.Editor"
              RequestedThemeVariant="Dark">
-
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="Resource/Styles/Icons.axaml"/>
+                <ResourceInclude Source="Resource/Styles/StyleControls.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
     <Application.DataTemplates>
         
     </Application.DataTemplates>

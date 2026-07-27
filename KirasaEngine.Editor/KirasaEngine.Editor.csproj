@@ -7,10 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Commands\" />
-        <Folder Include="Models\" />
         <AvaloniaResource Include="Assets\**" />
-        <Folder Include="Resources\Fonts\" />
+        <Folder Include="Commands\Base\" />
+        <Folder Include="Domain\Models\" />
+        <Folder Include="Resource\Fonts\" />
+        <Folder Include="Views\Pages\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,6 +31,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Resource\Localization\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
       <Compile Update="Views\Windows\MainWindow.axaml.cs">
         <DependentUpon>MainWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
@@ -44,5 +50,18 @@
       <ProjectReference Include="..\KirasaEngine.Bulding\KirasaEngine.Bulding.csproj" />
       <ProjectReference Include="..\KirasaEngine.Core\KirasaEngine.Core.csproj" />
       <ProjectReference Include="..\KirasaEngine.Render\KirasaEngine.Render.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resource\Localization\Resources.en-EN.resx">
+        <Generator></Generator>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resource\Localization\Resources.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resource\Localization\Resources.ru-RU.resx">
+        <Generator></Generator>
+      </EmbeddedResource>
     </ItemGroup>
 </Project>

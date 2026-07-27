@@ -1,6 +1,4 @@
-﻿
-
-namespace KirasaEngine.Editor.Views;
+﻿namespace KirasaEngine.Editor.Views;
 
 public partial class RenderFrame : UserControl
 {
@@ -9,33 +7,30 @@ public partial class RenderFrame : UserControl
     {
         InitializeComponent();
     }
-
     public RenderFrame(RenderFrameViewModel renderFrameViewModel) : this()
     {
         DataContext = renderFrameViewModel;
-        Width = ViewModel.Scene.WidthResolution;
-        Height = ViewModel.Scene.HeightResolution;
-        renderFrameViewModel.ImageUpdated += OnImageUpdated;
-        ViewModel.StartRenderingFromThread();
-    }
-    private void OnImageUpdated(WriteableBitmap bitmap)
-    {
-        // Обновляем Source напрямую
-        FrameContent.Source = bitmap;
-        // Принудительно перерисовываем (опционально)
-        FrameContent.InvalidateVisual();
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        this.Loaded += RenderFrame_Loaded;
+        
     }
 
-    private void FrameContent_OnSizeChanged(object? sender, SizeChangedEventArgs e)
+    private void RenderFrame_Loaded(object? sender, RoutedEventArgs e) => UpdateResoulutionRender((int)Bounds.Width, (int)Bounds.Height);
+
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e) => FrameContent.InvalidateVisual();
+    
+    private void FrameContent_OnSizeChanged(object? sender, SizeChangedEventArgs e) => UpdateResoulutionRender((int)e.NewSize.Width, (int)e.NewSize.Height);
+
+    private void UpdateResoulutionRender(int width, int height)
     {
         var vm = DataContext as RenderFrameViewModel;
-        vm?.Scene.WidthResolution = (int)e.NewSize.Width;
-        vm?.Scene.HeightResolution = (int)e.NewSize.Height;
+        vm?.Scene?.WidthResolution = width;
+        vm?.Scene?.HeightResolution = height;
     }
-    
+
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
-        ViewModel?.ImageUpdated -= OnImageUpdated;
+        ViewModel?.Dispose();
     }
 }

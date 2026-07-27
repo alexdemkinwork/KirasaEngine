@@ -1,4 +1,6 @@
-﻿namespace KirasaEngine.Render.Infrastructure.Utils.Render;
+﻿using System.Diagnostics;
+
+namespace KirasaEngine.Render.Infrastructure.Utils.Render;
 [RegisterScoped]
 public class RaylibRender : IRendererBase<RenderTexture2D, Color>
 {
@@ -111,7 +113,7 @@ public class RaylibRender : IRendererBase<RenderTexture2D, Color>
 
     #endregion
     
-    public Raylib_cs.Color ParseColorToBackendColor(RenderColor color)
+    public Color ParseColorToBackendColor(RenderColor color)
     {
         var hex = color.Hex.TrimStart('#');
 
@@ -126,7 +128,7 @@ public class RaylibRender : IRendererBase<RenderTexture2D, Color>
         byte b = Convert.ToByte(hex.Substring(4, 2), 16);
         byte a = (byte)Math.Round(color.Opacity * 255);
 
-        return new Raylib_cs.Color(r, g, b, a);
+        return new (r, g, b, a);
     }
 
     public unsafe byte[] GetRenderTextureData()

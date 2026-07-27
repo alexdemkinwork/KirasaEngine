@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controltemplates="using:KirasaEngine.Editor.Resource.ControlTemplates">
+    
+    <Style x:Key="StyleClosingButtonTabItem" Selector="Button.CloseTabItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Content" Value="✖️"/>
+    </Style>
+    <Style x:Key="StyleTabItemClosingButton" Selector="TabItem.TabItemClosing">
+         <Setter Property="HeaderTemplate">
+             <Setter.Value>
+                 <ControlTemplate>
+                     <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{TemplateBinding Header}"/>
+                        <Button Classes="CloseTabItem"/>
+                     </StackPanel>
+                 </ControlTemplate>
+             </Setter.Value>
+         </Setter>
+    </Style>
+</ResourceDictionary>

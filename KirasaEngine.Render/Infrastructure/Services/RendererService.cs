@@ -2,16 +2,18 @@
 
 namespace KirasaEngine.Render.Infrastructure.Services;
 [RegisterScoped]
-public class RendererService(TimeService timeService) 
+public class RendererService(TimeService timeService) : IDisposable
 {
     public TypeBackendRender SelectedBackendRender { get; set; }
-    private Dictionary<TypeBackendRender ,IRendererBase> RenderBackends { get; set; }
-    public IRendererBase SelectedBackendRenderer => RenderBackends[SelectedBackendRender];
+    private Dictionary<TypeBackendRender ,IRendererBase> _renderBackends { get; set; }
+    public IRendererBase SelectedBackendRenderer => _renderBackends[SelectedBackendRender];
+    public bool IsInitialized { get; private set; } = false;
     public void Initialize(RenderScene scene)
     {
-        RenderBackends = new Dictionary<TypeBackendRender, IRendererBase>();
-        RenderBackends.Add(TypeBackendRender.Raylib, new RaylibRender(scene));
+        _renderBackends = new();
+        _renderBackends!.Add(TypeBackendRender.Raylib, new RaylibRender(scene));
         SelectedBackendRender = scene.TypeBackend;
+        IsInitialized = true;
     }
 
     private void Present(List<LayerScene> layers)
@@ -27,13 +29,14 @@ public class RendererService(TimeService timeService)
             timeService.ReadTime();
             SelectedBackendRenderer.BeginRenderTexture();
             Present(layers);
+            
             SelectedBackendRenderer.EndRenderTexture();
             var textureData = GetAdditionalRendererFunctionality<RaylibRender>(TypeBackendRender.Raylib)
                 .GetRenderTextureData();
             onFrameUpdated?.Invoke(textureData);
             timeService.UpdateDeltaTime();
         }
-        SelectedBackendRenderer.Terminate();
+        Dispose();
     }
     
     public void RunSurface(List<LayerScene> layers)
@@ -46,8 +49,12 @@ public class RendererService(TimeService timeService)
             SelectedBackendRenderer.EndRenderSurface();
             timeService.UpdateDeltaTime();
         }
-        SelectedBackendRenderer.Terminate();
+        Dispose();
     }
-    private T GetAdditionalRendererFunctionality<T>(TypeBackendRender typeBackendRender) => (T)RenderBackends[typeBackendRender];
-    
+    private T GetAdditionalRendererFunctionality<T>(TypeBackendRender typeBackendRender) => (T)_renderBackends[typeBackendRender];
+
+    public void Dispose()
+    {
+        foreach (IRendererBase renderer in _renderBackends.Values) renderer.Terminate();
+    }
 }

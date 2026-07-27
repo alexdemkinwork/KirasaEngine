@@ -1,39 +1,34 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using KirasaEngine.Render.Domain.Models.Render.Scene;
-using KirasaEngine.Render.Infrastructure.Services;
+﻿using KirasaEngine.Render.Infrastructure.Services;
 
 namespace KirasaEngine.Editor.ViewModels;
 [RegisterScoped]
-public partial class RenderFrameViewModel : ViewModelBase
+public partial class RenderFrameViewModel(RendererService rendererService) : ViewModelBase, IDisposable
 {
-    public event Action<WriteableBitmap>? ImageUpdated;
-    public WriteableBitmap _sourceFrame;
-    private readonly CancellationTokenSource _cts = new();
+    private CancellationTokenSource _cts = new();
     public WriteableBitmap SourceFrame
     {
-        get => _sourceFrame;
+        get => field;
         private set
         {
-            SetProperty(ref _sourceFrame, value);
+            SetProperty(ref field, value);
             OnPropertyChanged();
         }
     }
-    private bool _startedShowed = false;
     public required RenderScene Scene { get; set; }
-    private readonly RendererService rendererService;
 
-    private byte[] _data;
-    
-    public RenderFrameViewModel(RendererService _renderService) => rendererService = _renderService;   
-    public void Initialize() => rendererService.Initialize(Scene);
+    public void UpdateScene(RenderScene scene)
+    {
+        Dispose();
+        Scene = scene;
+        StartRenderingFromThread();
+    }
     
     public void StartRenderingFromThread()
     {
+        _cts = new();
         var thread = new Thread(() =>
         {
-            Initialize();
+            rendererService.Initialize(Scene);
             rendererService.RunTexture(
                 Scene.Layers.Values.ToList(),
                 (data) => UpdateFrame(data), _cts.Token);
@@ -60,11 +55,15 @@ public partial class RenderFrameViewModel : ViewModelBase
 
             using var fb = newBitmap.Lock();
             Marshal.Copy(data, 0, fb.Address, data.Length);
-            ImageUpdated?.Invoke(newBitmap);
+            SourceFrame?.Dispose();
+            SourceFrame = newBitmap;
         });
     }
-    public void CancelRendering()
+
+    public void Dispose()
     {
         _cts.Cancel();
+        SourceFrame?.Dispose();
+        Scene = null;
     }
 }
