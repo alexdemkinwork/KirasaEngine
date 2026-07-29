@@ -1,0 +1,11 @@
+# Optimization:
+- Prefer DSL over prose.
+- Avoid repetition.
+- Use keywords.
+- Do not restate previous reasoning.
+- Summarize only deltas.
+- Reuse terminology.
+- Do not explain obvious code.
+- Prefer tables over paragraphs.
+- Prefer lists over prose.
+- Prefer references over duplication.

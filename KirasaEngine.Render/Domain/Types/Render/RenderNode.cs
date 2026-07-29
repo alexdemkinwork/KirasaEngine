@@ -1,4 +1,6 @@
-﻿namespace KirasaEngine.Render.Domain.Types.Render;
+﻿using KirasaEngine.Render.Domain.Types.Render.Colors;
+
+namespace KirasaEngine.Render.Domain.Types.Render;
 
 public abstract class RenderNode : IComparable<RenderNode>
 {

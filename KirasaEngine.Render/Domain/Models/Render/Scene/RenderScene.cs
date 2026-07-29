@@ -1,4 +1,6 @@
-﻿namespace KirasaEngine.Render.Domain.Models.Render.Scene;
+﻿using KirasaEngine.Render.Domain.Types.Render.Colors;
+
+namespace KirasaEngine.Render.Domain.Models.Render.Scene;
 
 public class RenderScene
 {

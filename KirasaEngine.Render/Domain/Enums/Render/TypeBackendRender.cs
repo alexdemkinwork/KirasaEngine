@@ -2,5 +2,8 @@
 
 public enum TypeBackendRender
 {
-    Raylib
+    OpenGL,
+    DirecX12,
+    DirectX11,
+    Vulkan,
 }

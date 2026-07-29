@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace KirasaEngine.Render.Infrastructure.Services;
+﻿namespace KirasaEngine.Render.Infrastructure.Services;
 [RegisterScoped]
 public class RendererService(TimeService timeService) : IDisposable
 {

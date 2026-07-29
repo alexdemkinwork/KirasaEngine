@@ -1,0 +1,31 @@
+# Workflows:
+- # BUGFIX:	
+SCAN
+↓
+ROOT
+↓
+PLAN3
+↓
+PATCH:SAFE
+↓
+VERIFY
+↓
+BUILD
+↓
+TEST
+↓
+REPORT
+- # FEATURE:
+SCAN
+↓
+ARCH
+↓
+PLAN3
+↓
+PATCH
+↓
+VERIFY
+↓
+TEST
+↓
+DOC
