@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 
 using KirasaEngine.MGL.Rendering;
+using KirasaEngine.MGL.Rendering.RenderGraph;
 
 namespace KirasaEngine.MGL.Rendering.RenderGraph.Passes;
 
@@ -14,19 +15,15 @@ public class Prepass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="Prepass"/> class.
     /// </summary>
-    public Prepass() : base("Prepass", Array.Empty<TextureUsage>(), new[] { TextureUsage.Depth, TextureUsage.Normal })
+    public Prepass() : base("Prepass", Array.Empty<RenderGraphTextureUsage>(), new[] { RenderGraphTextureUsage.Depth, RenderGraphTextureUsage.Normal })
     {
     }
     
     /// <inheritdoc/>
-    public override void Execute(IGraphicsCommandList cmd, RenderContext context)
+    public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var depthTarget = context.ResourceManager.GetOrCreateTexture(
-            "Prepass_Depth",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Depth24Stencil8, TextureUsage.RenderTarget));
-        
-        var normalTarget = context.ResourceManager.GetOrCreateTexture(
-            "Prepass_Normal",
+        var renderTarget = context.ResourceManager.CreateRenderTarget(
+            "Prepass_RT",
             new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget));
         
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
@@ -53,11 +50,11 @@ public class Prepass : RenderPass
         context.ResourceManager.UploadBufferData(cmd, constantsBuffer, MemoryMarshal.AsBytes(new ReadOnlySpan<ShaderResourceLayouts.PrepassConstantsData>(ref constants)));
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
-            pipeline.ResourceLayout,
+            pipeline.Description.ResourceLayout,
             new[] { constantsBuffer });
         
         cmd.Begin();
-        cmd.SetRenderTarget(new[] { normalTarget }, depthTarget);
+        cmd.SetRenderTarget(renderTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.ClearColor(new Vector4(0, 0, 0, 1000f));
         cmd.ClearDepthStencil();
@@ -81,18 +78,18 @@ public class Prepass : RenderPass
         context.Device.Submit(cmd);
     }
     
-    private void DrawNode(IGraphicsCommandList cmd, SceneNode node, RenderContext context)
+    private void DrawNode(ICommandList cmd, SceneNode node, RenderContext context)
     {
         var mesh = node.Renderer!.Mesh;
         var meshRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Vertices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()).Length, BufferUsage.Vertex),
-            MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()).Length, BufferUsage.Vertex),
+            MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()));
         
         var indexRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Indices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.AsSpan()).Length, BufferUsage.Index),
-            MemoryMarshal.AsBytes(mesh.Indices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()).Length, BufferUsage.Index),
+            MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()));
         
         var instanceData = new InstanceData(node.Transform.WorldMatrix, Vector4.One);
         var instanceBuffer = context.ResourceManager.GetOrCreateBuffer(
@@ -106,23 +103,23 @@ public class Prepass : RenderPass
         cmd.DrawIndexed((uint)mesh.Indices.Length, 1);
     }
     
-    private void DrawBatch(IGraphicsCommandList cmd, InstancedBatch batch, RenderContext context)
+    private void DrawBatch(ICommandList cmd, InstancedBatch batch, RenderContext context)
     {
         var mesh = batch.Mesh;
         var meshRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Vertices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()).Length, BufferUsage.Vertex),
-            MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()).Length, BufferUsage.Vertex),
+            MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()));
         
         var indexRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Indices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.AsSpan()).Length, BufferUsage.Index),
-            MemoryMarshal.AsBytes(mesh.Indices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()).Length, BufferUsage.Index),
+            MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()));
         
         var instanceBuffer = context.ResourceManager.GetOrCreateBuffer(
             $"Batch_{batch.GetHashCode()}",
             new BufferDescription((uint)batch.Instances.Count * InstanceData.SizeInBytes, BufferUsage.Vertex | BufferUsage.Dynamic),
-            MemoryMarshal.AsBytes(batch.Instances.AsSpan()));
+            MemoryMarshal.AsBytes(batch.Instances.ToArray().AsSpan()));
         
         cmd.SetVertexBuffer(0, meshRes);
         cmd.SetVertexBuffer(1, instanceBuffer);
@@ -130,3 +127,9 @@ public class Prepass : RenderPass
         cmd.DrawIndexed((uint)mesh.Indices.Length, (uint)batch.Instances.Count);
     }
 }
+
+
+
+
+
+

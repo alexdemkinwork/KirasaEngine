@@ -1,4 +1,5 @@
 using System;
+using KirasaEngine.MGL.Rendering.RenderGraph.Passes;
 
 namespace KirasaEngine.MGL.Rendering.RenderGraph;
 
@@ -8,7 +9,7 @@ namespace KirasaEngine.MGL.Rendering.RenderGraph;
 public class RenderGraph : IDisposable
 {
     private readonly List<RenderPass> _passes = new();
-    private readonly Dictionary<TextureUsage, ITexture> _textures = new();
+    private readonly Dictionary<RenderGraphTextureUsage, IRenderTarget> _renderTargets = new();
     private readonly ResourceManager _resourceManager;
     
     /// <summary>
@@ -34,7 +35,7 @@ public class RenderGraph : IDisposable
     /// </summary>
     /// <param name="cmd">The command list to record commands into.</param>
     /// <param name="context">The render context.</param>
-    public void Execute(IGraphicsCommandList cmd, RenderContext context)
+    public void Execute(ICommandList cmd, RenderContext context)
     {
         // Resolve pass dependencies and allocate textures
         AllocateTextures(context);
@@ -59,12 +60,12 @@ public class RenderGraph : IDisposable
         {
             foreach (var output in pass.Outputs)
             {
-                if (_textures.ContainsKey(output))
+                if (_renderTargets.ContainsKey(output))
                     continue;
                 
-                var description = GetTextureDescription(output, context.Width, context.Height);
-                var texture = _resourceManager.GetOrCreateTexture($"{pass.Name}_{output}", description);
-                _textures[output] = texture;
+                var textureDescription = GetTextureDescription(output, context.Width, context.Height, context);
+                var renderTarget = _resourceManager.CreateRenderTarget($"{pass.Name}_{output}", textureDescription);
+                _renderTargets[output] = renderTarget;
             }
         }
     }
@@ -75,20 +76,21 @@ public class RenderGraph : IDisposable
     /// <param name="usage">The texture usage.</param>
     /// <param name="width">The texture width.</param>
     /// <param name="height">The texture height.</param>
+    /// <param name="context">The render context for settings.</param>
     /// <returns>The texture description.</returns>
-    private TextureDescription GetTextureDescription(TextureUsage usage, uint width, uint height)
+    private TextureDescription GetTextureDescription(RenderGraphTextureUsage usage, uint width, uint height, RenderContext context)
     {
         return usage switch
         {
-            TextureUsage.Color => new TextureDescription(width, height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget),
-            TextureUsage.Depth => new TextureDescription(width, height, TextureFormat.Depth24Stencil8, TextureUsage.RenderTarget),
-            TextureUsage.Normal => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
-            TextureUsage.ShadowMap => new TextureDescription(context.Settings.ShadowMapResolution, context.Settings.ShadowMapResolution, TextureFormat.R32Float, TextureUsage.RenderTarget),
-            TextureUsage.AO => new TextureDescription(width, height, TextureFormat.R32Float, TextureUsage.RenderTarget),
-            TextureUsage.HDR => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
-            TextureUsage.Bloom => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
-            TextureUsage.LDR => new TextureDescription(width, height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget),
-            TextureUsage.Final => new TextureDescription(width, height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.Color => new TextureDescription(width, height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.Depth => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.Normal => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.ShadowMap => new TextureDescription(context.Settings.ShadowMapResolution, context.Settings.ShadowMapResolution, TextureFormat.R32Float, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.AO => new TextureDescription(width, height, TextureFormat.R32Float, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.HDR => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.Bloom => new TextureDescription(width, height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.LDR => new TextureDescription(width, height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget),
+            RenderGraphTextureUsage.Final => new TextureDescription(width, height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget),
             _ => throw new ArgumentOutOfRangeException(nameof(usage), usage, null),
         };
     }
@@ -103,12 +105,22 @@ public class RenderGraph : IDisposable
     {
         return pass switch
         {
-            ShadowPass => !settings.ShadowsActive,
-            SSAOPass => !settings.SSAOActive,
-            BloomPass => !settings.BloomActive,
-            FXAAPass => !settings.FXAAActive,
+            Passes.ShadowPass => !settings.ShadowsActive,
+            Passes.SSAOPass => !settings.SSAOActive,
+            Passes.BloomPass => !settings.BloomActive,
+            Passes.FXAAPass => !settings.FXAAActive,
             _ => false,
         };
+    }
+    
+    /// <summary>
+    /// Gets the render target for the given usage.
+    /// </summary>
+    /// <param name="usage">The texture usage.</param>
+    /// <returns>The render target.</returns>
+    public IRenderTarget GetRenderTarget(RenderGraphTextureUsage usage)
+    {
+        return _renderTargets[usage];
     }
     
     /// <summary>
@@ -116,9 +128,9 @@ public class RenderGraph : IDisposable
     /// </summary>
     /// <param name="usage">The texture usage.</param>
     /// <returns>The texture.</returns>
-    public ITexture GetTexture(TextureUsage usage)
+    public ITexture GetTexture(RenderGraphTextureUsage usage)
     {
-        return _textures[usage];
+        return _renderTargets[usage].ColorTexture;
     }
     
     /// <summary>

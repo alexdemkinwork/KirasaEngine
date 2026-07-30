@@ -15,6 +15,7 @@ public class ResourceManager : IDisposable
     private readonly Dictionary<string, ISampler> _samplerCache = new();
     private readonly Dictionary<string, IPipeline> _pipelineCache = new();
     private readonly Dictionary<string, IResourceLayout> _resourceLayoutCache = new();
+    private readonly Dictionary<string, IRenderTarget> _renderTargetCache = new();
     private readonly List<IDisposable> _disposables = new();
     
     /// <summary>
@@ -132,9 +133,31 @@ public class ResourceManager : IDisposable
     /// <returns>The descriptor set.</returns>
     public IResourceSet AllocateDescriptorSet(IResourceLayout layout, IReadOnlyList<object> resources)
     {
-        var set = _device.Factory.CreateResourceSet(new ResourceSetDescription { Layout = layout, Resources = resources });
+        var set = _device.Factory.CreateResourceSet(new ResourceSetDescription { Layout = layout, Resources = resources.ToArray() });
         _disposables.Add(set);
         return set;
+    }
+    
+    /// <summary>
+    /// Creates a render target.
+    /// </summary>
+    /// <param name="key">The unique key for the render target.</param>
+    /// <param name="description">The texture description for the color attachment.</param>
+    /// <param name="depthFormat">Optional depth format, null for no depth buffer.</param>
+    /// <returns>The render target.</returns>
+    public IRenderTarget CreateRenderTarget(string key, TextureDescription description, TextureFormat? depthFormat = TextureFormat.Depth24Stencil8)
+    {
+        if (_renderTargetCache.TryGetValue(key, out var renderTarget))
+            return renderTarget;
+        
+        renderTarget = _device.Factory.CreateRenderTarget(new RenderTargetDescription(
+            description.Width,
+            description.Height,
+            description.Format,
+            depthFormat));
+        _renderTargetCache[key] = renderTarget;
+        _disposables.Add(renderTarget);
+        return renderTarget;
     }
     
     /// <summary>

@@ -18,7 +18,14 @@ internal sealed class GLPipeline : IPipeline
         Description = description;
         ShaderSet = (GLShaderSet)description.ShaderSet;
         VertexArrayHandle = _gl.GenVertexArray();
+        GLErrorChecker.ValidateHandle(VertexArrayHandle, "VertexArray");
+        GLErrorChecker.CheckError(_gl, "GenVertexArray");
     }
 
-    public void Dispose() => _gl.DeleteVertexArray(VertexArrayHandle);
+    public void Dispose()
+    {
+        GLErrorChecker.ValidateHandle(VertexArrayHandle, "VertexArray");
+        _gl.DeleteVertexArray(VertexArrayHandle);
+        GLErrorChecker.CheckError(_gl, "DeleteVertexArray");
+    }
 }

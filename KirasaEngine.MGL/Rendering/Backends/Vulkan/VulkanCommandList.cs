@@ -192,6 +192,12 @@ internal sealed unsafe class VulkanCommandList : ICommandList
         _vk.CmdDrawIndexed(CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
+    public void Draw(uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0)
+    {
+        if (_pipeline is null) throw new InvalidOperationException("SetPipeline must be called before Draw.");
+        _vk.CmdDraw(CommandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    }
+
     private VulkanRenderTarget RequireTarget() =>
         _target ?? throw new InvalidOperationException("SetRenderTarget must be called before clearing.");
 

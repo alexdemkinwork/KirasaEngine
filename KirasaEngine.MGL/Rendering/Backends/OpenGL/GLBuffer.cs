@@ -19,7 +19,11 @@ internal sealed class GLBuffer : IBuffer
         Target = InferTarget(description.Usage);
 
         Handle = _gl.GenBuffer();
+        GLErrorChecker.ValidateHandle(Handle, "Buffer");
+        GLErrorChecker.CheckError(_gl, "GenBuffer");
+        
         _gl.BindBuffer(Target, Handle);
+        GLErrorChecker.CheckError(_gl, "BindBuffer");
 
         var hint = description.Usage.HasFlag(BufferUsage.Dynamic) ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
 
@@ -27,21 +31,28 @@ internal sealed class GLBuffer : IBuffer
         {
             fixed (byte* ptr = initialData)
                 _gl.BufferData(Target, (nuint)initialData.Length, ptr, hint);
+            GLErrorChecker.CheckError(_gl, "BufferData with initial data");
         }
         else
         {
             _gl.BufferData(Target, description.SizeInBytes, null, hint);
+            GLErrorChecker.CheckError(_gl, "BufferData without initial data");
         }
 
         _gl.BindBuffer(Target, 0);
+        GLErrorChecker.CheckError(_gl, "BindBuffer reset");
     }
 
     public unsafe void SetData(ReadOnlySpan<byte> data, uint destinationOffsetBytes)
     {
+        GLErrorChecker.ValidateHandle(Handle, "Buffer");
         _gl.BindBuffer(Target, Handle);
+        GLErrorChecker.CheckError(_gl, "BindBuffer for SetData");
         fixed (byte* ptr = data)
             _gl.BufferSubData(Target, (nint)destinationOffsetBytes, (nuint)data.Length, ptr);
+        GLErrorChecker.CheckError(_gl, "BufferSubData");
         _gl.BindBuffer(Target, 0);
+        GLErrorChecker.CheckError(_gl, "BindBuffer reset after SetData");
     }
 
     private static BufferTargetARB InferTarget(BufferUsage usage)
@@ -52,5 +63,10 @@ internal sealed class GLBuffer : IBuffer
         return BufferTargetARB.ArrayBuffer;
     }
 
-    public void Dispose() => _gl.DeleteBuffer(Handle);
+    public void Dispose()
+    {
+        GLErrorChecker.ValidateHandle(Handle, "Buffer");
+        _gl.DeleteBuffer(Handle);
+        GLErrorChecker.CheckError(_gl, "DeleteBuffer");
+    }
 }

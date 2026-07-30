@@ -17,7 +17,7 @@ public struct InstanceData(Matrix4x4 world, Vector4 colorTint)
     /// <summary>Four consecutive Float4 locations carry the matrix rows/columns; <paramref name="baseLocation"/> is the first free shader input location.</summary>
     public static VertexLayoutDescription GetVertexLayout(uint baseLocation) => new(
         SizeInBytes,
-        VertexInputRate.PerInstance,
+        KirasaEngine.MGL.Rendering.Abstractions.Enums.VertexInputRate.PerInstance,
         new VertexElementDescription("InstanceWorld0", baseLocation + 0, VertexElementFormat.Float4, 0),
         new VertexElementDescription("InstanceWorld1", baseLocation + 1, VertexElementFormat.Float4, 16),
         new VertexElementDescription("InstanceWorld2", baseLocation + 2, VertexElementFormat.Float4, 32),

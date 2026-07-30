@@ -188,6 +188,13 @@ internal sealed unsafe class D3D11CommandList(ID3D11DeviceContext* context) : IC
         context->DrawIndexedInstanced(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
+    public void Draw(uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0)
+    {
+        if (_currentPipeline is null) throw new InvalidOperationException("SetPipeline must be called before Draw.");
+
+        context->DrawInstanced(vertexCount, instanceCount, firstVertex, firstInstance);
+    }
+
     /// <summary>Nothing to release: the immediate context is owned by the device (mirrors GLCommandList).</summary>
     public void Dispose() { }
 }

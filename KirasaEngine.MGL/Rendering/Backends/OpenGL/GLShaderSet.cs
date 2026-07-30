@@ -25,9 +25,15 @@ internal sealed class GLShaderSet : IShaderSet
         var fragmentShader = CompileStage(ShaderType.FragmentShader, fragmentSource);
 
         ProgramHandle = _gl.CreateProgram();
+        GLErrorChecker.ValidateHandle(ProgramHandle, "Program");
+        GLErrorChecker.CheckError(_gl, "CreateProgram");
+        
         _gl.AttachShader(ProgramHandle, vertexShader);
+        GLErrorChecker.CheckError(_gl, "AttachShader Vertex");
         _gl.AttachShader(ProgramHandle, fragmentShader);
+        GLErrorChecker.CheckError(_gl, "AttachShader Fragment");
         _gl.LinkProgram(ProgramHandle);
+        GLErrorChecker.CheckError(_gl, "LinkProgram");
 
         _gl.GetProgram(ProgramHandle, GLEnum.LinkStatus, out var linkStatus);
         if (linkStatus == 0)
@@ -38,16 +44,25 @@ internal sealed class GLShaderSet : IShaderSet
         }
 
         _gl.DetachShader(ProgramHandle, vertexShader);
+        GLErrorChecker.CheckError(_gl, "DetachShader Vertex");
         _gl.DetachShader(ProgramHandle, fragmentShader);
+        GLErrorChecker.CheckError(_gl, "DetachShader Fragment");
         _gl.DeleteShader(vertexShader);
+        GLErrorChecker.CheckError(_gl, "DeleteShader Vertex");
         _gl.DeleteShader(fragmentShader);
+        GLErrorChecker.CheckError(_gl, "DeleteShader Fragment");
     }
 
     private uint CompileStage(ShaderType type, string source)
     {
         var handle = _gl.CreateShader(type);
+        GLErrorChecker.ValidateHandle(handle, "Shader");
+        GLErrorChecker.CheckError(_gl, "CreateShader");
+        
         _gl.ShaderSource(handle, source);
+        GLErrorChecker.CheckError(_gl, "ShaderSource");
         _gl.CompileShader(handle);
+        GLErrorChecker.CheckError(_gl, "CompileShader");
 
         _gl.GetShader(handle, GLEnum.CompileStatus, out var compileStatus);
         if (compileStatus == 0)
@@ -60,5 +75,10 @@ internal sealed class GLShaderSet : IShaderSet
         return handle;
     }
 
-    public void Dispose() => _gl.DeleteProgram(ProgramHandle);
+    public void Dispose()
+    {
+        GLErrorChecker.ValidateHandle(ProgramHandle, "Program");
+        _gl.DeleteProgram(ProgramHandle);
+        GLErrorChecker.CheckError(_gl, "DeleteProgram");
+    }
 }

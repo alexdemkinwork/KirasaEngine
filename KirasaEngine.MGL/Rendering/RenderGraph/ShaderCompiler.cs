@@ -36,7 +36,7 @@ public class ShaderCompiler
         shaderSet = _device.Factory.CreateShaderSet(new ShaderSetDescription
         {
             ShaderName = shaderName,
-            VertexLayouts = vertexLayouts,
+            VertexLayouts = vertexLayouts.ToArray(),
         });
         
         _shaderCache[key] = shaderSet;

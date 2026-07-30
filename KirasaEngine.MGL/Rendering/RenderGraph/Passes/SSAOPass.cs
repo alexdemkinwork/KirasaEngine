@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 
 using KirasaEngine.MGL.Rendering;
+using KirasaEngine.MGL.Rendering.RenderGraph;
 
 namespace KirasaEngine.MGL.Rendering.RenderGraph.Passes;
 
@@ -14,14 +15,14 @@ public class SSAOPass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="SSAOPass"/> class.
     /// </summary>
-    public SSAOPass() : base("SSAO", new[] { TextureUsage.Depth, TextureUsage.Normal }, new[] { TextureUsage.AO })
+    public SSAOPass() : base("SSAO", new[] { RenderGraphTextureUsage.Depth, RenderGraphTextureUsage.Normal }, new[] { RenderGraphTextureUsage.AO })
     {
     }
     
     /// <inheritdoc/>
-    public override void Execute(IGraphicsCommandList cmd, RenderContext context)
+    public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var aoTarget = context.ResourceManager.GetOrCreateTexture(
+        var aoTarget = context.ResourceManager.CreateRenderTarget(
             "SSAO_AO",
             new TextureDescription(context.Width, context.Height, TextureFormat.R32Float, TextureUsage.RenderTarget));
         
@@ -60,7 +61,7 @@ public class SSAOPass : RenderPass
         context.ResourceManager.UploadBufferData(cmd, constantsBuffer, MemoryMarshal.AsBytes(new ReadOnlySpan<ShaderResourceLayouts.SSAOConstantsData>(ref constants)));
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
-            pipeline.ResourceLayout,
+            pipeline.Description.ResourceLayout,
             new object[] { constantsBuffer, normalTexture, context.ResourceManager.GetOrCreateSampler("Clamp", new SamplerDescription(SamplerFilter.Linear, SamplerAddressMode.Clamp)) });
         
         cmd.Begin();
@@ -73,3 +74,9 @@ public class SSAOPass : RenderPass
         context.Device.Submit(cmd);
     }
 }
+
+
+
+
+
+

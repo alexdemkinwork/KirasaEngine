@@ -61,13 +61,14 @@ public sealed class SceneRenderer : IDisposable
             scene.FindLightNodes().FirstOrDefault(),
             width,
             height,
-            Settings);
+            Settings,
+            _renderGraph);
         
         var cmd = _device.CreateCommandList();
         _renderGraph.Execute(cmd, context);
         
-        var finalTexture = _renderGraph.GetTexture(TextureUsage.Final);
-        var result = _device.ReadRenderTarget(finalTexture);
+        var finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.Final);
+        var result = _device.ReadRenderTarget(finalRenderTarget);
         cmd.Dispose();
         
         return result;

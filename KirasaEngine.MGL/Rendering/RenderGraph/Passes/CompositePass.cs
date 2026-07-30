@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 
 using KirasaEngine.MGL.Rendering;
+using KirasaEngine.MGL.Rendering.RenderGraph;
 
 namespace KirasaEngine.MGL.Rendering.RenderGraph.Passes;
 
@@ -14,12 +15,12 @@ public class CompositePass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="CompositePass"/> class.
     /// </summary>
-    public CompositePass() : base("Composite", new[] { TextureUsage.HDR, TextureUsage.Bloom }, new[] { TextureUsage.LDR })
+    public CompositePass() : base("Composite", new[] { RenderGraphTextureUsage.HDR, RenderGraphTextureUsage.Bloom }, new[] { RenderGraphTextureUsage.LDR })
     {
     }
     
     /// <inheritdoc/>
-    public override void Execute(IGraphicsCommandList cmd, RenderContext context)
+    public override void Execute(ICommandList cmd, RenderContext context)
     {
         var hdrTexture = context.ResourceManager.GetOrCreateTexture(
             "Forward_HDR",
@@ -31,7 +32,7 @@ public class CompositePass : RenderPass
                 new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.Sampled))
             : null;
         
-        var ldrTarget = context.ResourceManager.GetOrCreateTexture(
+        var ldrTarget = context.ResourceManager.CreateRenderTarget(
             "Composite_LDR",
             new TextureDescription(context.Width, context.Height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget));
         
@@ -65,7 +66,7 @@ public class CompositePass : RenderPass
         context.ResourceManager.UploadBufferData(cmd, constantsBuffer, MemoryMarshal.AsBytes(new ReadOnlySpan<ShaderResourceLayouts.CompositeConstantsData>(ref constants)));
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
-            pipeline.ResourceLayout,
+            pipeline.Description.ResourceLayout,
             new object[]
             {
                 constantsBuffer,
@@ -85,3 +86,9 @@ public class CompositePass : RenderPass
         context.Device.Submit(cmd);
     }
 }
+
+
+
+
+
+

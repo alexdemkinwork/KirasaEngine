@@ -3,7 +3,7 @@ namespace KirasaEngine.MGL.Rendering.RenderGraph;
 /// <summary>
 /// Defines the usage of a texture in the render graph.
 /// </summary>
-public enum TextureUsage
+public enum RenderGraphTextureUsage
 {
     /// <summary>Color output from the forward pass.</summary>
     Color,

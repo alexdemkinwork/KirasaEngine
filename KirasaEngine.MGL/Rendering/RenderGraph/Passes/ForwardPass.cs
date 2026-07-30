@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 
 using KirasaEngine.MGL.Rendering;
+using KirasaEngine.MGL.Rendering.RenderGraph;
 
 namespace KirasaEngine.MGL.Rendering.RenderGraph.Passes;
 
@@ -14,23 +15,21 @@ public class ForwardPass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="ForwardPass"/> class.
     /// </summary>
-    public ForwardPass() : base("Forward", new[] { TextureUsage.ShadowMap, TextureUsage.AO }, new[] { TextureUsage.HDR })
+    public ForwardPass() : base("Forward", new[] { RenderGraphTextureUsage.ShadowMap, RenderGraphTextureUsage.AO }, new[] { RenderGraphTextureUsage.HDR })
     {
     }
     
     /// <inheritdoc/>
-    public override void Execute(IGraphicsCommandList cmd, RenderContext context)
+    public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var hdrTarget = context.ResourceManager.GetOrCreateTexture(
-            "Forward_HDR",
+        var renderTarget = context.ResourceManager.CreateRenderTarget(
+            "Forward_RT",
             new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget));
         
-        var depthTarget = context.ResourceManager.GetOrCreateTexture(
-            "Forward_Depth",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Depth24Stencil8, TextureUsage.RenderTarget));
+        // Note: depth is handled by the render target internally
         
         cmd.Begin();
-        cmd.SetRenderTarget(new[] { hdrTarget }, depthTarget);
+        cmd.SetRenderTarget(renderTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.ClearColor(context.Scene.BackgroundColor);
         cmd.ClearDepthStencil();
@@ -52,7 +51,7 @@ public class ForwardPass : RenderPass
         context.Device.Submit(cmd);
     }
     
-    private void DrawNode(IGraphicsCommandList cmd, SceneNode node, RenderContext context)
+    private void DrawNode(ICommandList cmd, SceneNode node, RenderContext context)
     {
         var mesh = node.Renderer!.Mesh;
         var material = node.Renderer.Material;
@@ -111,7 +110,7 @@ public class ForwardPass : RenderPass
             : context.ResourceManager.GetOrCreateTexture("PlaceholderR32", new TextureDescription(1, 1, TextureFormat.R32Float, TextureUsage.Sampled), stackalloc byte[] { 0, 0, 0, 0 });
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
-            pipeline.ResourceLayout,
+            pipeline.Description.ResourceLayout,
             new object[]
             {
                 frameConstantsBuffer,
@@ -126,13 +125,13 @@ public class ForwardPass : RenderPass
         
         var meshRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Vertices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()).Length, BufferUsage.Vertex),
-            MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()).Length, BufferUsage.Vertex),
+            MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()));
         
         var indexRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Indices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.AsSpan()).Length, BufferUsage.Index),
-            MemoryMarshal.AsBytes(mesh.Indices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()).Length, BufferUsage.Index),
+            MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()));
         
         var instanceData = new InstanceData(node.Transform.WorldMatrix, Vector4.One);
         var instanceBuffer = context.ResourceManager.GetOrCreateBuffer(
@@ -148,7 +147,7 @@ public class ForwardPass : RenderPass
         cmd.DrawIndexed((uint)mesh.Indices.Length, 1);
     }
     
-    private void DrawBatch(IGraphicsCommandList cmd, InstancedBatch batch, RenderContext context)
+    private void DrawBatch(ICommandList cmd, InstancedBatch batch, RenderContext context)
     {
         var mesh = batch.Mesh;
         var material = batch.Material;
@@ -207,7 +206,7 @@ public class ForwardPass : RenderPass
             : context.ResourceManager.GetOrCreateTexture("PlaceholderR32", new TextureDescription(1, 1, TextureFormat.R32Float, TextureUsage.Sampled), stackalloc byte[] { 0, 0, 0, 0 });
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
-            pipeline.ResourceLayout,
+            pipeline.Description.ResourceLayout,
             new object[]
             {
                 frameConstantsBuffer,
@@ -222,18 +221,18 @@ public class ForwardPass : RenderPass
         
         var meshRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Vertices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()).Length, BufferUsage.Vertex),
-            MemoryMarshal.AsBytes(mesh.Vertices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()).Length, BufferUsage.Vertex),
+            MemoryMarshal.AsBytes(mesh.Vertices.ToArray().AsSpan()));
         
         var indexRes = context.ResourceManager.GetOrCreateBuffer(
             $"Mesh_{mesh.GetHashCode()}_Indices",
-            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.AsSpan()).Length, BufferUsage.Index),
-            MemoryMarshal.AsBytes(mesh.Indices.AsSpan()));
+            new BufferDescription((uint)MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()).Length, BufferUsage.Index),
+            MemoryMarshal.AsBytes(mesh.Indices.ToArray().AsSpan()));
         
         var instanceBuffer = context.ResourceManager.GetOrCreateBuffer(
             $"Batch_{batch.GetHashCode()}",
             new BufferDescription((uint)batch.Instances.Count * InstanceData.SizeInBytes, BufferUsage.Vertex | BufferUsage.Dynamic),
-            MemoryMarshal.AsBytes(batch.Instances.AsSpan()));
+            MemoryMarshal.AsBytes(batch.Instances.ToArray().AsSpan()));
         
         cmd.SetPipeline(pipeline);
         cmd.SetVertexBuffer(0, meshRes);
@@ -243,3 +242,9 @@ public class ForwardPass : RenderPass
         cmd.DrawIndexed((uint)mesh.Indices.Length, (uint)batch.Instances.Count);
     }
 }
+
+
+
+
+
+

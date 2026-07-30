@@ -1,4 +1,5 @@
 using Silk.NET.Direct3D12;
+using Silk.NET.Maths;
 using Viewport = KirasaEngine.MGL.Rendering.Abstractions.Structs.Viewport;
 
 using KirasaEngine.MGL.Rendering;
@@ -193,6 +194,12 @@ internal sealed unsafe class D3D12CommandList(D3D12GraphicsDevice device) : ICom
     {
         if (_currentPipeline is null) throw new InvalidOperationException("SetPipeline must be called before DrawIndexed.");
         _list->DrawIndexedInstanced(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    }
+
+    public void Draw(uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0)
+    {
+        if (_currentPipeline is null) throw new InvalidOperationException("SetPipeline must be called before Draw.");
+        _list->DrawInstanced(vertexCount, instanceCount, firstVertex, firstInstance);
     }
 
     /// <summary>Nothing to release: the underlying list and allocator are owned by the device and reused.</summary>

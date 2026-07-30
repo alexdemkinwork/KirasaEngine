@@ -13,12 +13,12 @@ public abstract class RenderPass
     /// <summary>
     /// Gets the list of input textures required by this pass.
     /// </summary>
-    public IReadOnlyList<TextureUsage> Inputs { get; }
+    public IReadOnlyList<RenderGraphTextureUsage> Inputs { get; }
     
     /// <summary>
     /// Gets the list of output textures produced by this pass.
     /// </summary>
-    public IReadOnlyList<TextureUsage> Outputs { get; }
+    public IReadOnlyList<RenderGraphTextureUsage> Outputs { get; }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="RenderPass"/> class.
@@ -26,17 +26,17 @@ public abstract class RenderPass
     /// <param name="name">The name of the pass.</param>
     /// <param name="inputs">The input textures required by this pass.</param>
     /// <param name="outputs">The output textures produced by this pass.</param>
-    protected RenderPass(string name, IReadOnlyList<TextureUsage> inputs, IReadOnlyList<TextureUsage> outputs)
+    protected RenderPass(string name, IReadOnlyList<RenderGraphTextureUsage> inputs, IReadOnlyList<RenderGraphTextureUsage> outputs)
     {
         Name = name;
         Inputs = inputs;
         Outputs = outputs;
     }
     
-    /// <summary>
-    /// Executes the pass.
-    /// </summary>
-    /// <param name="cmd">The command list to record commands into.</param>
-    /// <param name="context">The render context providing access to resources and scene data.</param>
-    public abstract void Execute(IGraphicsCommandList cmd, RenderContext context);
+     /// <summary>
+     /// Executes the pass.
+     /// </summary>
+     /// <param name="cmd">The command list to record commands into.</param>
+     /// <param name="context">The render context providing access to resources and scene data.</param>
+     public abstract void Execute(ICommandList cmd, RenderContext context);
 }

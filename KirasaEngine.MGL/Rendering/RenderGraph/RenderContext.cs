@@ -58,6 +58,11 @@ public class RenderContext
     public PostProcessSettings Settings { get; }
     
     /// <summary>
+    /// Gets the render graph.
+    /// </summary>
+    public RenderGraph RenderGraph { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="RenderContext"/> class.
     /// </summary>
     /// <param name="device">The graphics device.</param>
@@ -70,6 +75,7 @@ public class RenderContext
     /// <param name="width">The render target width.</param>
     /// <param name="height">The render target height.</param>
     /// <param name="settings">The post-process settings.</param>
+    /// <param name="renderGraph">The render graph.</param>
     public RenderContext(
         IGraphicsDevice device,
         Scene scene,
@@ -80,7 +86,8 @@ public class RenderContext
         SceneNode? lightNode,
         uint width,
         uint height,
-        PostProcessSettings settings)
+        PostProcessSettings settings,
+        RenderGraph renderGraph)
     {
         Device = device;
         Scene = scene;
@@ -92,6 +99,7 @@ public class RenderContext
         Width = width;
         Height = height;
         Settings = settings;
+        RenderGraph = renderGraph;
     }
     
     /// <summary>

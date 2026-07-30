@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 
 using KirasaEngine.MGL.Rendering;
+using KirasaEngine.MGL.Rendering.RenderGraph;
 
 namespace KirasaEngine.MGL.Rendering.RenderGraph.Passes;
 
@@ -14,18 +15,18 @@ public class FXAAPass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="FXAAPass"/> class.
     /// </summary>
-    public FXAAPass() : base("FXAA", new[] { TextureUsage.LDR }, new[] { TextureUsage.Final })
+    public FXAAPass() : base("FXAA", new[] { RenderGraphTextureUsage.LDR }, new[] { RenderGraphTextureUsage.Final })
     {
     }
     
     /// <inheritdoc/>
-    public override void Execute(IGraphicsCommandList cmd, RenderContext context)
+    public override void Execute(ICommandList cmd, RenderContext context)
     {
         var ldrTexture = context.ResourceManager.GetOrCreateTexture(
             "Composite_LDR",
             new TextureDescription(context.Width, context.Height, TextureFormat.Rgba8UNorm, TextureUsage.Sampled));
         
-        var finalTarget = context.ResourceManager.GetOrCreateTexture(
+        var finalTarget = context.ResourceManager.CreateRenderTarget(
             "FXAA_Final",
             new TextureDescription(context.Width, context.Height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget));
         
@@ -51,7 +52,7 @@ public class FXAAPass : RenderPass
         context.ResourceManager.UploadBufferData(cmd, constantsBuffer, MemoryMarshal.AsBytes(new ReadOnlySpan<ShaderResourceLayouts.FXAAConstantsData>(ref constants)));
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
-            pipeline.ResourceLayout,
+            pipeline.Description.ResourceLayout,
             new object[] { constantsBuffer, ldrTexture, context.ResourceManager.GetOrCreateSampler("Clamp", new SamplerDescription(SamplerFilter.Linear, SamplerAddressMode.Clamp)) });
         
         cmd.Begin();
@@ -64,3 +65,9 @@ public class FXAAPass : RenderPass
         context.Device.Submit(cmd);
     }
 }
+
+
+
+
+
+
