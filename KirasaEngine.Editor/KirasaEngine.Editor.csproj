@@ -49,7 +49,6 @@
     <ItemGroup>
       <ProjectReference Include="..\KirasaEngine.Bulding\KirasaEngine.Bulding.csproj" />
       <ProjectReference Include="..\KirasaEngine.Core\KirasaEngine.Core.csproj" />
-      <ProjectReference Include="..\KirasaEngine.Render\KirasaEngine.Render.csproj" />
     </ItemGroup>
 
     <ItemGroup>

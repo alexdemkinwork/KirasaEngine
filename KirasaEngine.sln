@@ -15,40 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KirasaEngine.MGL.Smoke", "K
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KirasaEngine.Audio", "KirasaEngine.Audio\KirasaEngine.Audio.csproj", "{F78D6E53-081F-48EA-9ED1-99B8ED2CC8F6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".claude", ".claude", "{13DE8AA3-F575-4C71-B8ED-B2F75D5DD59F}"
-	ProjectSection(SolutionItems) = preProject
-		CLAUDE.md = CLAUDE.md
-		rules.md = rules.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "skills", "skills", "{7BCDE1CB-D330-460E-8738-C2BEF5027EE8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rewiew", "rewiew", "{1CBA705C-6D1D-45F2-9F66-FC8DF5A6E3A9}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optimize", "optimize", "{6E4A9B3B-CAA3-4941-8CA6-A49D2F600007}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "refactor", "refactor", "{8D22D4AF-8BBF-4D70-A927-F20E2057725F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bugfix", "bugfix", "{14DE88D7-A8FD-42E7-9817-6EBE48D33776}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "agents", "agents", "{E7F4D520-9DB9-4645-8C60-1CFC458A5CDB}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "output-styles", "output-styles", "{93DD86BE-600F-4B52-A574-B64BEDB486D2}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cdl", "cdl", "{CD783082-57BB-4F6C-9BE6-A233D9CE52D5}"
-	ProjectSection(SolutionItems) = preProject
-		examples.md = examples.md
-		grammar.md = grammar.md
-		keywords.md = keywords.md
-		modifiers.md = modifiers.md
-		optimization.md = optimization.md
-		output.md = output.md
-		semantics.md = semantics.md
-		targets.md = targets.md
-		values.md = values.md
-		workflows.md = workflows.md
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -134,16 +100,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{7BCDE1CB-D330-460E-8738-C2BEF5027EE8} = {13DE8AA3-F575-4C71-B8ED-B2F75D5DD59F}
-		{1CBA705C-6D1D-45F2-9F66-FC8DF5A6E3A9} = {7BCDE1CB-D330-460E-8738-C2BEF5027EE8}
-		{6E4A9B3B-CAA3-4941-8CA6-A49D2F600007} = {7BCDE1CB-D330-460E-8738-C2BEF5027EE8}
-		{8D22D4AF-8BBF-4D70-A927-F20E2057725F} = {7BCDE1CB-D330-460E-8738-C2BEF5027EE8}
-		{14DE88D7-A8FD-42E7-9817-6EBE48D33776} = {7BCDE1CB-D330-460E-8738-C2BEF5027EE8}
-		{E7F4D520-9DB9-4645-8C60-1CFC458A5CDB} = {13DE8AA3-F575-4C71-B8ED-B2F75D5DD59F}
-		{93DD86BE-600F-4B52-A574-B64BEDB486D2} = {13DE8AA3-F575-4C71-B8ED-B2F75D5DD59F}
-		{CD783082-57BB-4F6C-9BE6-A233D9CE52D5} = {13DE8AA3-F575-4C71-B8ED-B2F75D5DD59F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA60BBE1-1456-41DC-B1D4-E8B2D2148712}

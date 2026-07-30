@@ -39,4 +39,5 @@
     <EmbeddedResource Include="Rendering\ShaderLibrary\**\*.hlsl" />
   </ItemGroup>
 
+
 </Project>

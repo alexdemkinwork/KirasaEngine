@@ -6,7 +6,7 @@ const uint height = 384;
 var backendsArg = args.Length > 0 ? args[0] : null;
 var backends = backendsArg switch
 {
-    null => [GraphicsBackend.OpenGL],
+    null => [GraphicsBackend.Direct3D12],
     _ => backendsArg.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .Select(s => Enum.Parse<GraphicsBackend>(s, ignoreCase: true)).ToArray(),
 };
