@@ -1,5 +1,7 @@
 using Silk.NET.OpenGL;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.OpenGL;
 
 /// <summary>

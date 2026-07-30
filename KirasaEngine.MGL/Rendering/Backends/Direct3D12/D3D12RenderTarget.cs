@@ -1,3 +1,5 @@
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Direct3D12;
 
 /// <summary>

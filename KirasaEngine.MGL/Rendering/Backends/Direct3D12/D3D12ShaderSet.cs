@@ -2,6 +2,8 @@ using System.Text;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D.Compilers;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Direct3D12;
 
 /// <summary>

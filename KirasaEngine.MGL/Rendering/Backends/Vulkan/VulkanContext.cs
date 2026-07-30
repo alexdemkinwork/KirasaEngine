@@ -1,6 +1,9 @@
 using Silk.NET.Vulkan;
 using VkBuffer = Silk.NET.Vulkan.Buffer;
 
+using KirasaEngine.MGL.Rendering;
+using VulkanRenderPass = Silk.NET.Vulkan.RenderPass;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 /// <summary>
@@ -174,11 +177,11 @@ internal sealed unsafe class VulkanContext(
     /// <summary>
     /// Builds the render pass shared by <see cref="VulkanRenderTarget"/> (for its framebuffer) and
     /// <see cref="VulkanPipeline"/>. Both derive it purely from the attachment formats, so the two objects
-    /// are always render-pass *compatible* even though they are distinct <see cref="RenderPass"/> handles.
+    /// are always render-pass *compatible* even though they are distinct <see cref="VulkanRenderPass"/> handles.
     /// LoadOp is DontCare because clears are issued with vkCmdClearAttachments once the render pass is
     /// already open (ICommandList exposes ClearColor/ClearDepthStencil after SetRenderTarget).
     /// </summary>
-    public RenderPass CreateRenderPass(TextureFormat colorFormat, TextureFormat? depthFormat)
+    public VulkanRenderPass CreateRenderPass(TextureFormat colorFormat, TextureFormat? depthFormat)
     {
         var attachments = stackalloc AttachmentDescription[2];
         attachments[0] = new AttachmentDescription

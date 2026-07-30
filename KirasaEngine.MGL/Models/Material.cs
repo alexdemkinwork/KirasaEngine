@@ -8,4 +8,6 @@ public sealed class Material
     public ITexture? BaseColorTexture { get; set; }
     public BlendMode Blend { get; set; } = BlendMode.Opaque;
     public bool DoubleSided { get; set; }
+    public float SpecularIntensity { get; set; } = 0.5f;
+    public float Shininess { get; set; } = 32f;
 }

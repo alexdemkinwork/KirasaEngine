@@ -16,4 +16,9 @@ public sealed class Scene
     public SceneNode? FindCameraNode() => Traverse().FirstOrDefault(n => n.Camera is not null);
 
     public IEnumerable<SceneNode> FindLightNodes() => Traverse().Where(n => n.Light is not null);
+    
+    public void Resize(uint width, uint height)
+    {
+        // Scene doesn't need to store resolution - renderer handles it
+    }
 }

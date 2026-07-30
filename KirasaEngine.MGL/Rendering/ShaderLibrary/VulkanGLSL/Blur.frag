@@ -8,7 +8,8 @@ layout(set = 0, binding = 0) uniform BlurConstants
     vec4 Params1; // x = threshold, y = applyThreshold (0/1), z/w unused
 };
 
-layout(set = 0, binding = 1) uniform sampler2D SourceTexture;
+layout(set = 0, binding = 1) uniform texture2D SourceTexture;
+layout(set = 0, binding = 2) uniform sampler SourceSampler;
 
 layout(location = 0) out vec4 oColor;
 
@@ -36,7 +37,7 @@ void main()
         else
             sampleUV.y += offset * texelSize.y;
 
-        vec4 sampleColor = texture(SourceTexture, sampleUV);
+        vec4 sampleColor = texture(sampler2D(SourceTexture, SourceSampler), sampleUV);
         
         // Bright-pass threshold for first (horizontal) pass
         if (applyThreshold)

@@ -1,22 +1,20 @@
-﻿using KirasaEngine.Render.Infrastructure.Services;
+﻿using KirasaEngine.Editor.Infrastructure.Services;
+using KirasaEngine.MGL.SceneGraph;
+using KirasaEngine.MGL.Models;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace KirasaEngine.Editor.ViewModels;
+
 [RegisterScoped]
 public partial class RenderFrameViewModel(RendererService rendererService) : ViewModelBase, IDisposable
 {
     private CancellationTokenSource _cts = new();
-    public WriteableBitmap SourceFrame
-    {
-        get => field;
-        private set
-        {
-            SetProperty(ref field, value);
-            OnPropertyChanged();
-        }
-    }
-    public required RenderScene Scene { get; set; }
+    public WriteableBitmap? SourceFrame { get; private set; }
+    public Scene? Scene { get; set; }
+    public RendererService RendererService => rendererService;
 
-    public void UpdateScene(RenderScene scene)
+    public void UpdateScene(Scene scene)
     {
         Dispose();
         Scene = scene;
@@ -25,27 +23,26 @@ public partial class RenderFrameViewModel(RendererService rendererService) : Vie
     
     public void StartRenderingFromThread()
     {
+        if (Scene == null) return;
+        
         _cts = new();
         var thread = new Thread(() =>
         {
-            rendererService.Initialize(Scene);
-            rendererService.RunTexture(
-                Scene.Layers.Values.ToList(),
-                (data) => UpdateFrame(data), _cts.Token);
-        }); ;
+            rendererService.Initialize(Scene, 800, 600);
+            rendererService.FrameRendered += OnFrameRendered;
+            rendererService.StartRendering(_cts.Token);
+        });
         thread.Start();
     }
 
-    private void UpdateFrame(byte[] data)
+    private void OnFrameRendered(byte[] data)
     {
         Dispatcher.UIThread.Post(() =>
         {
-            var renderer = rendererService.SelectedBackendRenderer;
-            if (renderer == null || data == null || data.Length == 0) return;
+            if (data == null || data.Length == 0) return;
 
-            int w = renderer.WidthRender;
-            int h = renderer.HeightRender;
-            if (w <= 0 || h <= 0) return;
+            int w = 800;
+            int h = 600;
             
             var newBitmap = new WriteableBitmap(
                 new PixelSize(w, h),
@@ -63,6 +60,7 @@ public partial class RenderFrameViewModel(RendererService rendererService) : Vie
     public void Dispose()
     {
         _cts.Cancel();
+        rendererService.FrameRendered -= OnFrameRendered;
         SourceFrame?.Dispose();
         Scene = null;
     }

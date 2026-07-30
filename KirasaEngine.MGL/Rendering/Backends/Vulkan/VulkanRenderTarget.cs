@@ -1,6 +1,11 @@
 using Silk.NET.Vulkan;
 
+using KirasaEngine.MGL.Rendering;
+using VulkanRenderPass = Silk.NET.Vulkan.RenderPass;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
+
+using VulkanRenderPass = Silk.NET.Vulkan.RenderPass;
 
 /// <summary>
 /// Color (+ optional depth) <see cref="VulkanTexture"/> pair, together with the <see cref="RenderPass"/> and

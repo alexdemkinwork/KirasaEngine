@@ -1,3 +1,5 @@
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.OpenGL;
 
 internal sealed class GLResourceSet(ResourceSetDescription description) : IResourceSet

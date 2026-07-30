@@ -4,6 +4,8 @@ using Silk.NET.Shaderc;
 using Silk.NET.Vulkan;
 using ShadercApi = Silk.NET.Shaderc.Shaderc;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 /// <summary>

@@ -1,5 +1,7 @@
 namespace KirasaEngine.Editor;
 
+using KirasaEngine.Editor.Views.Windows;
+
 public partial class App : Application
 {
     public IServiceProvider ServiceProvider { get; private set; }
@@ -12,7 +14,7 @@ public partial class App : Application
     {
         RegisterServices();
 
-        GetService<LanguageService>().SetCulture(CultureType.ru_RU);
+        CultureManager.SetCulture(CultureType.en_US);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -22,7 +24,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    public TService GetService<TService>() where TService : class => ServiceProvider!.GetRequiredService<TService>();
+    public TService GetService<TService>() where TService : class => ServiceProvider.GetRequiredService<TService>();
 
     public override void RegisterServices()
     {
@@ -30,7 +32,7 @@ public partial class App : Application
         var services = new ServiceCollection();
         services.AddKirasaEngineCore();
         services.AddKirasaEngineBulding();
-        services.AddKirasaEngineRender();
+        services.AddKirasaEngineMGL();
         services.AddKirasaEngineEditor();
         ServiceProvider = services.BuildServiceProvider();
     }

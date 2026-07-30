@@ -8,7 +8,8 @@ layout(set = 0, binding = 0) uniform SSAOConstants
     vec4 Params1; // x = sampleCount, y = bias, z/w unused
 };
 
-layout(set = 0, binding = 1) uniform sampler2D NormalDepthTexture;
+layout(set = 0, binding = 1) uniform texture2D NormalDepthTexture;
+layout(set = 0, binding = 2) uniform sampler NormalDepthSampler;
 
 layout(location = 0) out float oOcclusion;
 
@@ -29,7 +30,7 @@ float Hash(vec2 p)
 
 void main()
 {
-    vec4 normalDepth = texture(NormalDepthTexture, vUV);
+    vec4 normalDepth = texture(sampler2D(NormalDepthTexture, NormalDepthSampler), vUV);
     vec3 normal = normalize(normalDepth.xyz);
     float depth = normalDepth.w;
 
@@ -69,7 +70,7 @@ void main()
         if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0)
             continue;
 
-        float sampleStoredDepth = texture(NormalDepthTexture, sampleUV).w;
+        float sampleStoredDepth = texture(sampler2D(NormalDepthTexture, NormalDepthSampler), sampleUV).w;
         float sampleViewDepth = -samplePos.z;
 
         float rangeCheck = smoothstep(0.0, 1.0, radius / max(abs(depth - sampleStoredDepth), 0.0001));

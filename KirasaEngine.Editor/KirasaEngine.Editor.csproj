@@ -46,9 +46,10 @@
       </Compile>
     </ItemGroup>
 
-    <ItemGroup>
+<ItemGroup>
       <ProjectReference Include="..\KirasaEngine.Bulding\KirasaEngine.Bulding.csproj" />
       <ProjectReference Include="..\KirasaEngine.Core\KirasaEngine.Core.csproj" />
+      <ProjectReference Include="..\KirasaEngine.MGL\KirasaEngine.MGL.csproj" />
     </ItemGroup>
 
     <ItemGroup>

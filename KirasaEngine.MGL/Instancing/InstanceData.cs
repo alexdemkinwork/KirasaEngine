@@ -1,3 +1,6 @@
+using KirasaEngine.MGL.Rendering.Abstractions.Structs;
+using Silk.NET.Vulkan;
+
 namespace KirasaEngine.MGL.Instancing;
 
 /// <summary>Per-instance GPU data: world matrix (row-major, matches <see cref="System.Numerics.Matrix4x4"/>) + a color tint.</summary>

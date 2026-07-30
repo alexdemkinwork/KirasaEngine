@@ -1,9 +1,8 @@
 ﻿namespace KirasaEngine.Editor.Infrastructure.Services;
 
-[RegisterSingleton]
-public class LanguageService
+public static class CultureManager
 {
-    public void SetCulture(CultureType cultureType)
+    public static void SetCulture(CultureType cultureType)
     {
         Resources.Culture = CultureInfo.GetCultureInfo(Enum.GetName(cultureType)!.Replace("_", "-"));
     }

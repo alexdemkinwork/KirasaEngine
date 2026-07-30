@@ -1,6 +1,10 @@
 using Silk.NET.Direct3D12;
 using Viewport = KirasaEngine.MGL.Rendering.Abstractions.Structs.Viewport;
 
+using KirasaEngine.MGL.Rendering;
+
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Direct3D12;
 
 /// <summary>

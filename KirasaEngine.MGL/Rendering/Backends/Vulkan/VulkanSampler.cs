@@ -1,6 +1,8 @@
 using Silk.NET.Vulkan;
 using VkSampler = Silk.NET.Vulkan.Sampler;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 internal sealed unsafe class VulkanSampler : ISampler

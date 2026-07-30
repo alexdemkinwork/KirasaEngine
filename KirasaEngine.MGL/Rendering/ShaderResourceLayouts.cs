@@ -67,7 +67,10 @@ public static class ShaderResourceLayouts
         /// <summary>x = render target width, y = render target height (for reconstructing this fragment's screen UV), z = AO enabled (0/1), w = unused.</summary>
         public Vector4 ScreenParams;
 
-        public const uint SizeInBytes = 64 + 64 + 16 * 5;
+        /// <summary>Camera world position (xyz), w = 1.</summary>
+        public Vector4 CameraPosition;
+
+        public const uint SizeInBytes = 64 + 64 + 16 * 6;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -75,7 +78,10 @@ public static class ShaderResourceLayouts
     {
         public Vector4 BaseColor;
 
-        public const uint SizeInBytes = 16;
+        /// <summary>x = specular intensity, y = shininess, z/w unused.</summary>
+        public Vector4 SpecularParams;
+
+        public const uint SizeInBytes = 32;
     }
 
     // ---- Shadow depth pass: renders scene geometry from the light's point of view into an R32Float target

@@ -1,3 +1,5 @@
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 internal sealed class VulkanResourceFactory(VulkanContext context) : IResourceFactory

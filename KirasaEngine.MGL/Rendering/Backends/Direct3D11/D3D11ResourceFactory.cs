@@ -1,5 +1,7 @@
 using Silk.NET.Direct3D11;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Direct3D11;
 
 /// <summary>

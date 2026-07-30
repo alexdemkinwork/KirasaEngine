@@ -72,6 +72,7 @@ float PSMain(PSInput input) : SV_Target
     float seed = Hash(input.UV) * 6.2831853;
     float occlusion = 0.0;
 
+    [unroll(64)]
     for (int i = 0; i < sampleCount; i++)
     {
         float3 samplePos = viewPos + mul(tbn, HemisphereSample(i, sampleCount, seed)) * radius;

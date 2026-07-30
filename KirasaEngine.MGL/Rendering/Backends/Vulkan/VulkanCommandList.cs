@@ -1,6 +1,8 @@
 using Silk.NET.Vulkan;
 using AbsViewport = KirasaEngine.MGL.Rendering.Abstractions.Structs.Viewport;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 /// <summary>

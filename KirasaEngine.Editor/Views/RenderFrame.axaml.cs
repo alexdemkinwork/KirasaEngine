@@ -1,4 +1,8 @@
-﻿namespace KirasaEngine.Editor.Views;
+﻿using KirasaEngine.Editor.Infrastructure.Services;
+using KirasaEngine.Editor.ViewModels;
+using KirasaEngine.MGL.SceneGraph;
+
+namespace KirasaEngine.Editor.Views;
 
 public partial class RenderFrame : UserControl
 {
@@ -15,17 +19,20 @@ public partial class RenderFrame : UserControl
         
     }
 
-    private void RenderFrame_Loaded(object? sender, RoutedEventArgs e) => UpdateResoulutionRender((int)Bounds.Width, (int)Bounds.Height);
+    private void RenderFrame_Loaded(object? sender, RoutedEventArgs e) => UpdateResolutionRender((int)Bounds.Width, (int)Bounds.Height);
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e) => FrameContent.InvalidateVisual();
     
-    private void FrameContent_OnSizeChanged(object? sender, SizeChangedEventArgs e) => UpdateResoulutionRender((int)e.NewSize.Width, (int)e.NewSize.Height);
+    private void FrameContent_OnSizeChanged(object? sender, SizeChangedEventArgs e) => UpdateResolutionRender((int)e.NewSize.Width, (int)e.NewSize.Height);
 
-    private void UpdateResoulutionRender(int width, int height)
+    private void UpdateResolutionRender(int width, int height)
     {
         var vm = DataContext as RenderFrameViewModel;
-        vm?.Scene?.WidthResolution = width;
-        vm?.Scene?.HeightResolution = height;
+        if (vm?.Scene != null)
+        {
+            vm.Scene.Resize((uint)width, (uint)height);
+        }
+        // Note: The renderer service handles resizing internally
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)

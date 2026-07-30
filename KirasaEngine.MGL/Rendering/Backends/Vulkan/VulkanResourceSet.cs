@@ -1,5 +1,7 @@
 using Silk.NET.Vulkan;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 /// <summary>

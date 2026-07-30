@@ -32,19 +32,19 @@ void main()
         if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0)
             continue;
 
-        vec4 sample = texture(SourceTexture, sampleUV);
+        vec4 sampleColor = texture(SourceTexture, sampleUV);
 
         // Bright-pass threshold for the first (horizontal) pass
         if (applyThreshold)
         {
-            float luminance = dot(sample.rgb, vec3(0.2126, 0.7152, 0.0722));
+            float luminance = dot(sampleColor.rgb, vec3(0.2126, 0.7152, 0.0722));
             if (luminance < threshold)
                 continue;
         }
 
         // Simple uniform weight (can be precomputed Gaussian weights for quality)
         float weight = 1.0;
-        color += sample * weight;
+        color += sampleColor * weight;
         weightSum += weight;
     }
 

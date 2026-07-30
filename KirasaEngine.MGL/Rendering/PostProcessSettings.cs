@@ -26,7 +26,7 @@ public sealed class PostProcessSettings
     public RenderQuality VignetteQuality { get; set; } = RenderQuality.Medium;
 
     /// <summary>Depth bias in light-clip-space units, applied in the shadow-sampling shader to fight acne.</summary>
-    public float ShadowBias { get; set; } = 0.0025f;
+    public float ShadowBias { get; set; } = 0.004f;
 
     /// <summary>World-space half-extent padding added around the scene's node-position bounds when framing the shadow frustum.</summary>
     public float ShadowFrustumPadding { get; set; } = 3f;

@@ -2,6 +2,9 @@ using Silk.NET.Core.Native;
 using Silk.NET.Vulkan;
 using VkPipeline = Silk.NET.Vulkan.Pipeline;
 
+using KirasaEngine.MGL.Rendering;
+using VulkanRenderPass = Silk.NET.Vulkan.RenderPass;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 /// <summary>
@@ -23,7 +26,7 @@ internal sealed unsafe class VulkanPipeline : IPipeline
     public PipelineDescription Description { get; }
     public VulkanShaderSet ShaderSet { get; }
     public PipelineLayout Layout { get; }
-    public RenderPass RenderPass { get; }
+    public VulkanRenderPass RenderPass { get; }
     public VkPipeline Handle { get; }
 
     public VulkanPipeline(VulkanContext context, PipelineDescription description)
@@ -47,6 +50,7 @@ internal sealed unsafe class VulkanPipeline : IPipeline
         Layout = pipelineLayout;
 
         RenderPass = context.CreateRenderPass(description.ColorFormat, description.DepthFormat);
+        // Используем полное имя для избежания конфликта с RenderGraph.RenderPass
 
         var entryPoint = SilkMarshal.StringToPtr("main");
         try

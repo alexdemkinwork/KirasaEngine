@@ -3,6 +3,8 @@ using AbsPrimitiveTopology = KirasaEngine.MGL.Rendering.Abstractions.Enums.Primi
 using AbsSamplerAddressMode = KirasaEngine.MGL.Rendering.Abstractions.Enums.SamplerAddressMode;
 using AbsFrontFace = KirasaEngine.MGL.Rendering.Abstractions.Enums.FrontFace;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Vulkan;
 
 /// <summary>Vulkan counterpart of <c>GLFormats</c>: pure translation of abstraction enums to Silk.NET.Vulkan enums.</summary>

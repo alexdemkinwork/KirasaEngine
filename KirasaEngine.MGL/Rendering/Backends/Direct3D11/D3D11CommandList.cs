@@ -5,6 +5,8 @@ using Silk.NET.Maths;
 using Viewport = KirasaEngine.MGL.Rendering.Abstractions.Structs.Viewport;
 using D3D11Viewport = Silk.NET.Direct3D11.Viewport;
 
+using KirasaEngine.MGL.Rendering;
+
 namespace KirasaEngine.MGL.Rendering.Backends.Direct3D11;
 
 /// <summary>
