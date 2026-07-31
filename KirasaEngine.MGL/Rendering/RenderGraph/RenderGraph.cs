@@ -118,7 +118,7 @@ public class RenderGraph : IDisposable
             Passes.Prepass => !settings.SSAOActive,
             Passes.SSAOPass => !settings.SSAOActive,
             Passes.BloomPass => !settings.BloomActive,
-            Passes.CompositePass => !settings.FXAAActive && !settings.VignetteActive && !settings.BloomActive,
+            Passes.CompositePass => !settings.FXAAActive && !settings.VignetteActive,
             Passes.FXAAPass => !settings.FXAAActive,
             _ => false,
         };

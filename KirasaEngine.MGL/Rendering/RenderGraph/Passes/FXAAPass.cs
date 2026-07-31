@@ -56,7 +56,6 @@ public class FXAAPass : RenderPass
         cmd.SetPipeline(pipeline);
         cmd.SetResourceSet(0, resourceSet);
         cmd.Draw(3); // Fullscreen triangle
-        cmd.End();
     }
 }
 

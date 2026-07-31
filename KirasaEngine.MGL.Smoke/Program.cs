@@ -48,7 +48,12 @@ static void RunBackend(GraphicsBackend backend, string outDir)
     var device = GraphicsDeviceFactory.Create(backend);
     device.Initialize(new GraphicsDeviceDescription { Window = window, Width = width, Height = height });
 
-    var renderer = new SceneRenderer(device);
+    var renderer = new SceneRenderer(device, new PostProcessSettings { 
+        ShadowQuality = RenderQuality.Off, 
+        SSAOQuality = RenderQuality.Off, 
+        BloomQuality = RenderQuality.High, 
+        FXAAQuality = RenderQuality.Off 
+    });
     try
     {
         var scene = DemoScene.Build();

@@ -75,8 +75,16 @@ public sealed class SceneRenderer : IDisposable
         }
         catch (KeyNotFoundException)
         {
-            // Fall back to HDR when no post-processing passes are enabled
-            finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.HDR);
+            try
+            {
+                // Try LDR (when CompositePass ran but FXAA didn't)
+                finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.LDR);
+            }
+            catch (KeyNotFoundException)
+            {
+                // Fall back to HDR when no post-processing passes are enabled
+                finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.HDR);
+            }
         }
         var result = _device.ReadRenderTarget(finalRenderTarget);
         cmd.Dispose();
