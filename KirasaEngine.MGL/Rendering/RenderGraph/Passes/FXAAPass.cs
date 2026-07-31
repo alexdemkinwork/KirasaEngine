@@ -22,13 +22,9 @@ public class FXAAPass : RenderPass
     /// <inheritdoc/>
     public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var ldrTexture = context.ResourceManager.GetOrCreateTexture(
-            "Composite_LDR",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba8UNorm, TextureUsage.Sampled));
+        var ldrTexture = context.RenderGraph.GetTexture(RenderGraphTextureUsage.LDR);
         
-        var finalTarget = context.ResourceManager.CreateRenderTarget(
-            "FXAA_Final",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget));
+        var finalTarget = context.RenderGraph.GetRenderTarget(RenderGraphTextureUsage.Final);
         
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             "FXAA",
@@ -55,14 +51,12 @@ public class FXAAPass : RenderPass
             pipeline.Description.ResourceLayout,
             new object[] { constantsBuffer, ldrTexture, context.ResourceManager.GetOrCreateSampler("Clamp", new SamplerDescription(SamplerFilter.Linear, SamplerAddressMode.Clamp)) });
         
-        cmd.Begin();
         cmd.SetRenderTarget(finalTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.SetPipeline(pipeline);
         cmd.SetResourceSet(0, resourceSet);
         cmd.Draw(3); // Fullscreen triangle
         cmd.End();
-        context.Device.Submit(cmd);
     }
 }
 

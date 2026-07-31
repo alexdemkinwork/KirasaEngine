@@ -37,8 +37,10 @@ public class RenderGraph : IDisposable
     /// <param name="context">The render context.</param>
     public void Execute(ICommandList cmd, RenderContext context)
     {
-        // Resolve pass dependencies and allocate textures
+        // Resolve pass dependencies and allocate textures only for enabled passes
         AllocateTextures(context);
+        
+        cmd.Begin();
         
         // Execute passes in order
         foreach (var pass in _passes)
@@ -48,16 +50,23 @@ public class RenderGraph : IDisposable
             
             pass.Execute(cmd, context);
         }
+        
+        cmd.End();
+        context.Device.Submit(cmd);
     }
     
     /// <summary>
-    /// Allocates textures for all passes in the graph.
+    /// Allocates textures for all enabled passes in the graph.
     /// </summary>
     /// <param name="context">The render context.</param>
     private void AllocateTextures(RenderContext context)
     {
         foreach (var pass in _passes)
         {
+            // Only allocate textures for passes that will actually run
+            if (ShouldSkipPass(pass, context.Settings))
+                continue;
+                
             foreach (var output in pass.Outputs)
             {
                 if (_renderTargets.ContainsKey(output))
@@ -106,8 +115,10 @@ public class RenderGraph : IDisposable
         return pass switch
         {
             Passes.ShadowPass => !settings.ShadowsActive,
+            Passes.Prepass => !settings.SSAOActive,
             Passes.SSAOPass => !settings.SSAOActive,
             Passes.BloomPass => !settings.BloomActive,
+            Passes.CompositePass => !settings.FXAAActive && !settings.VignetteActive && !settings.BloomActive,
             Passes.FXAAPass => !settings.FXAAActive,
             _ => false,
         };

@@ -1,4 +1,4 @@
-﻿namespace KirasaEngine.MGL.SceneGraph;
+namespace KirasaEngine.MGL.SceneGraph;
 
 /// <summary>
 /// Produces System.Numerics-convention matrices: Y-up, depth range [0,1] (D3D/Vulkan native), and, like
@@ -22,7 +22,32 @@ public sealed class Camera
         return view;
     }
 
-    public Matrix4x4 GetProjectionMatrix(float aspectRatio) => Orthographic
-        ? Matrix4x4.CreateOrthographic(OrthographicSize * aspectRatio, OrthographicSize, NearPlane, FarPlane)
-        : Matrix4x4.CreatePerspectiveFieldOfView(FieldOfViewRadians, MathF.Max(aspectRatio, 0.0001f), NearPlane, FarPlane);
+    public Matrix4x4 GetProjectionMatrix(float aspectRatio)
+    {
+        if (Orthographic)
+        {
+            var orthoProj = Matrix4x4.CreateOrthographic(OrthographicSize * aspectRatio, OrthographicSize, NearPlane, FarPlane);
+            // Convert from default [-1,1] depth range to [0,1]
+            orthoProj.M33 = 2f / (FarPlane - NearPlane);
+            orthoProj.M34 = 0;
+            orthoProj.M43 = -(FarPlane + NearPlane) / (FarPlane - NearPlane);
+            orthoProj.M44 = 1;
+            return orthoProj;
+        }
+        
+        var fov = FieldOfViewRadians;
+        var tanHalfFov = MathF.Tan(fov * 0.5f);
+        
+        // Create perspective matrix with depth range [0,1] (DirectX/Vulkan convention)
+        // This matches what Camera's doc comment promises.
+        return new Matrix4x4
+        {
+            M11 = 1f / (aspectRatio * tanHalfFov),
+            M22 = 1f / tanHalfFov,
+            M33 = FarPlane / (FarPlane - NearPlane),
+            M34 = 1f,
+            M43 = -(FarPlane * NearPlane) / (FarPlane - NearPlane),
+            M44 = 0f
+        };
+    }
 }

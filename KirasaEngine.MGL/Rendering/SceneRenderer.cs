@@ -67,7 +67,17 @@ public sealed class SceneRenderer : IDisposable
         var cmd = _device.CreateCommandList();
         _renderGraph.Execute(cmd, context);
         
-        var finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.Final);
+        IRenderTarget finalRenderTarget;
+        try
+        {
+            // Try Final first (when FXAA is enabled)
+            finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.Final);
+        }
+        catch (KeyNotFoundException)
+        {
+            // Fall back to HDR when no post-processing passes are enabled
+            finalRenderTarget = _renderGraph.GetRenderTarget(KirasaEngine.MGL.Rendering.RenderGraph.RenderGraphTextureUsage.HDR);
+        }
         var result = _device.ReadRenderTarget(finalRenderTarget);
         cmd.Dispose();
         

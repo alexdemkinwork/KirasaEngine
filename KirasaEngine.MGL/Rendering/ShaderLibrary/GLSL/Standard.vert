@@ -29,7 +29,14 @@ layout(location = 3) out vec4 vWorldPos;
 
 void main()
 {
-    mat4 world = mat4(iInstanceWorld0, iInstanceWorld1, iInstanceWorld2, iInstanceWorld3);
+    // Construct world matrix from row-major data (rows are stored as vec4 in instance data)
+    // In GLSL, matrices are column-major, so we need to transpose or construct carefully
+    mat4 world = mat4(
+        vec4(iInstanceWorld0.x, iInstanceWorld1.x, iInstanceWorld2.x, iInstanceWorld3.x),
+        vec4(iInstanceWorld0.y, iInstanceWorld1.y, iInstanceWorld2.y, iInstanceWorld3.y),
+        vec4(iInstanceWorld0.z, iInstanceWorld1.z, iInstanceWorld2.z, iInstanceWorld3.z),
+        vec4(iInstanceWorld0.w, iInstanceWorld1.w, iInstanceWorld2.w, iInstanceWorld3.w)
+    );
     vec4 worldPos = world * vec4(iPosition, 1.0);
 
     gl_Position = ViewProjection * worldPos;

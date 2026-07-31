@@ -15,16 +15,14 @@ public class SSAOPass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="SSAOPass"/> class.
     /// </summary>
-    public SSAOPass() : base("SSAO", new[] { RenderGraphTextureUsage.Depth, RenderGraphTextureUsage.Normal }, new[] { RenderGraphTextureUsage.AO })
+    public SSAOPass() : base("SSAO", new[] { RenderGraphTextureUsage.Normal }, new[] { RenderGraphTextureUsage.AO })
     {
     }
     
     /// <inheritdoc/>
     public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var aoTarget = context.ResourceManager.CreateRenderTarget(
-            "SSAO_AO",
-            new TextureDescription(context.Width, context.Height, TextureFormat.R32Float, TextureUsage.RenderTarget));
+        var aoTarget = context.RenderGraph.GetRenderTarget(RenderGraphTextureUsage.AO);
         
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             "SSAO",
@@ -36,13 +34,8 @@ public class SSAOPass : RenderPass
                 ColorFormat = TextureFormat.R32Float,
             });
         
-        var depthTexture = context.ResourceManager.GetOrCreateTexture(
-            "Prepass_Depth",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Depth24Stencil8, TextureUsage.Sampled));
-        
-        var normalTexture = context.ResourceManager.GetOrCreateTexture(
-            "Prepass_Normal",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.Sampled));
+        // Prepass outputs both depth and normal in a single RGBA16F texture (normal.xyz, depth.w)
+        var normalDepthTexture = context.RenderGraph.GetTexture(RenderGraphTextureUsage.Normal);
         
         var constants = new ShaderResourceLayouts.SSAOConstantsData
         {
@@ -62,16 +55,13 @@ public class SSAOPass : RenderPass
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
             pipeline.Description.ResourceLayout,
-            new object[] { constantsBuffer, normalTexture, context.ResourceManager.GetOrCreateSampler("Clamp", new SamplerDescription(SamplerFilter.Linear, SamplerAddressMode.Clamp)) });
+            new object[] { constantsBuffer, normalDepthTexture, context.ResourceManager.GetOrCreateSampler("Clamp", new SamplerDescription(SamplerFilter.Linear, SamplerAddressMode.Clamp)) });
         
-        cmd.Begin();
         cmd.SetRenderTarget(aoTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.SetPipeline(pipeline);
         cmd.SetResourceSet(0, resourceSet);
         cmd.Draw(3); // Fullscreen triangle
-        cmd.End();
-        context.Device.Submit(cmd);
     }
 }
 

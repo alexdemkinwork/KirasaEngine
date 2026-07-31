@@ -2,6 +2,8 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+using KirasaEngine.MGL.Instancing;
+using KirasaEngine.MGL.Models;
 using KirasaEngine.MGL.Rendering;
 using KirasaEngine.MGL.Rendering.RenderGraph;
 
@@ -22,13 +24,10 @@ public class ForwardPass : RenderPass
     /// <inheritdoc/>
     public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var renderTarget = context.ResourceManager.CreateRenderTarget(
-            "Forward_RT",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget));
+        var renderTarget = context.RenderGraph.GetRenderTarget(RenderGraphTextureUsage.HDR);
         
         // Note: depth is handled by the render target internally
         
-        cmd.Begin();
         cmd.SetRenderTarget(renderTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.ClearColor(context.Scene.BackgroundColor);
@@ -47,8 +46,6 @@ public class ForwardPass : RenderPass
             DrawBatch(cmd, batch, context);
         }
         
-        cmd.End();
-        context.Device.Submit(cmd);
     }
     
     private void DrawNode(ICommandList cmd, SceneNode node, RenderContext context)
@@ -56,11 +53,17 @@ public class ForwardPass : RenderPass
         var mesh = node.Renderer!.Mesh;
         var material = node.Renderer.Material;
         
+        var vertexLayouts = new VertexLayoutDescription[]
+        {
+            VertexPNCT.GetVertexLayout(),
+            InstanceData.GetVertexLayout(4) // Instance data starts at location 4
+        };
+        
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             $"Forward_{material.ShaderName}_{material.Blend}_{material.DoubleSided}",
             new PipelineDescription
             {
-                ShaderSet = context.ShaderCompiler.CompileShaderSet(material.ShaderName, Array.Empty<VertexLayoutDescription>()),
+                ShaderSet = context.ShaderCompiler.CompileShaderSet(material.ShaderName, vertexLayouts),
                 ResourceLayout = context.ResourceManager.GetOrCreateResourceLayout("Forward", ShaderResourceLayouts.Standard),
                 CullMode = material.DoubleSided ? CullMode.None : CullMode.Back,
                 Blend = material.Blend,
@@ -102,11 +105,11 @@ public class ForwardPass : RenderPass
         context.ResourceManager.UploadBufferData(cmd, drawConstantsBuffer, MemoryMarshal.AsBytes(new ReadOnlySpan<ShaderResourceLayouts.DrawConstantsData>(ref drawConstants)));
         
         var shadowMap = context.Settings.ShadowsActive
-            ? context.ResourceManager.GetOrCreateTexture("ShadowMap", new TextureDescription(context.Settings.ShadowMapResolution, context.Settings.ShadowMapResolution, TextureFormat.R32Float, TextureUsage.Sampled))
+            ? context.RenderGraph.GetTexture(RenderGraphTextureUsage.ShadowMap)
             : context.ResourceManager.GetOrCreateTexture("PlaceholderR32", new TextureDescription(1, 1, TextureFormat.R32Float, TextureUsage.Sampled), stackalloc byte[] { 0, 0, 0, 0 });
         
         var aoTexture = context.Settings.SSAOActive
-            ? context.ResourceManager.GetOrCreateTexture("SSAO_AO", new TextureDescription(context.Width, context.Height, TextureFormat.R32Float, TextureUsage.Sampled))
+            ? context.RenderGraph.GetTexture(RenderGraphTextureUsage.AO)
             : context.ResourceManager.GetOrCreateTexture("PlaceholderR32", new TextureDescription(1, 1, TextureFormat.R32Float, TextureUsage.Sampled), stackalloc byte[] { 0, 0, 0, 0 });
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(
@@ -152,11 +155,17 @@ public class ForwardPass : RenderPass
         var mesh = batch.Mesh;
         var material = batch.Material;
         
+        var vertexLayouts = new VertexLayoutDescription[]
+        {
+            VertexPNCT.GetVertexLayout(),
+            InstanceData.GetVertexLayout(4) // Instance data starts at location 4
+        };
+        
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             $"Forward_{material.ShaderName}_{material.Blend}_{material.DoubleSided}",
             new PipelineDescription
             {
-                ShaderSet = context.ShaderCompiler.CompileShaderSet(material.ShaderName, Array.Empty<VertexLayoutDescription>()),
+                ShaderSet = context.ShaderCompiler.CompileShaderSet(material.ShaderName, vertexLayouts),
                 ResourceLayout = context.ResourceManager.GetOrCreateResourceLayout("Forward", ShaderResourceLayouts.Standard),
                 CullMode = material.DoubleSided ? CullMode.None : CullMode.Back,
                 Blend = material.Blend,
@@ -198,11 +207,11 @@ public class ForwardPass : RenderPass
         context.ResourceManager.UploadBufferData(cmd, drawConstantsBuffer, MemoryMarshal.AsBytes(new ReadOnlySpan<ShaderResourceLayouts.DrawConstantsData>(ref drawConstants)));
         
         var shadowMap = context.Settings.ShadowsActive
-            ? context.ResourceManager.GetOrCreateTexture("ShadowMap", new TextureDescription(context.Settings.ShadowMapResolution, context.Settings.ShadowMapResolution, TextureFormat.R32Float, TextureUsage.Sampled))
+            ? context.RenderGraph.GetTexture(RenderGraphTextureUsage.ShadowMap)
             : context.ResourceManager.GetOrCreateTexture("PlaceholderR32", new TextureDescription(1, 1, TextureFormat.R32Float, TextureUsage.Sampled), stackalloc byte[] { 0, 0, 0, 0 });
         
         var aoTexture = context.Settings.SSAOActive
-            ? context.ResourceManager.GetOrCreateTexture("SSAO_AO", new TextureDescription(context.Width, context.Height, TextureFormat.R32Float, TextureUsage.Sampled))
+            ? context.RenderGraph.GetTexture(RenderGraphTextureUsage.AO)
             : context.ResourceManager.GetOrCreateTexture("PlaceholderR32", new TextureDescription(1, 1, TextureFormat.R32Float, TextureUsage.Sampled), stackalloc byte[] { 0, 0, 0, 0 });
         
         var resourceSet = context.ResourceManager.AllocateDescriptorSet(

@@ -31,6 +31,9 @@ internal sealed unsafe class GLCommandList(GL gl) : ICommandList
     private readonly GLResourceSet?[] _currentResourceSets = new GLResourceSet[MaxResourceSets];
     private readonly uint[] _currentResourceSetSlots = new uint[MaxResourceSets];
 
+    // Uniform buffer binding tracking
+    private readonly uint[] _currentUniformBufferBindings = new uint[MaxTextureUnits];
+
     // Texture unit tracking
     private readonly uint[] _currentTextureUnits = new uint[MaxTextureUnits];
     private readonly uint[] _currentSamplerBindings = new uint[MaxTextureUnits];
@@ -370,12 +373,12 @@ internal sealed unsafe class GLCommandList(GL gl) : ICommandList
                     GLErrorChecker.ValidateHandle(buffer.Handle, "UniformBuffer");
                     
                     // Skip if buffer hasn't changed for this binding
-                    if (_currentTextureUnits[element.Binding] == buffer.Handle)
+                    if (_currentUniformBufferBindings[element.Binding] == buffer.Handle)
                         break;
                     
                     _gl.BindBufferBase(BufferTargetARB.UniformBuffer, element.Binding, buffer.Handle);
                     GLErrorChecker.CheckError(_gl, "BindBufferBase Uniform");
-                    _currentTextureUnits[element.Binding] = buffer.Handle;
+                    _currentUniformBufferBindings[element.Binding] = buffer.Handle;
                     break;
 
                 case ResourceKind.TextureReadOnly:

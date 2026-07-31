@@ -2,6 +2,8 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+using KirasaEngine.MGL.Instancing;
+using KirasaEngine.MGL.Models;
 using KirasaEngine.MGL.Rendering;
 using KirasaEngine.MGL.Rendering.RenderGraph;
 
@@ -15,22 +17,28 @@ public class Prepass : RenderPass
     /// <summary>
     /// Initializes a new instance of the <see cref="Prepass"/> class.
     /// </summary>
-    public Prepass() : base("Prepass", Array.Empty<RenderGraphTextureUsage>(), new[] { RenderGraphTextureUsage.Depth, RenderGraphTextureUsage.Normal })
+    public Prepass() : base("Prepass", Array.Empty<RenderGraphTextureUsage>(), new[] { RenderGraphTextureUsage.Normal })
     {
     }
     
     /// <inheritdoc/>
     public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var renderTarget = context.ResourceManager.CreateRenderTarget(
-            "Prepass_RT",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.RenderTarget));
+        // Prepass outputs both depth and normal in a single RGBA16F render target (normal.xyz, depth.w)
+        // Use the Normal texture from RenderGraph as the primary output
+        var renderTarget = context.RenderGraph.GetRenderTarget(RenderGraphTextureUsage.Normal);
+        
+        var vertexLayouts = new VertexLayoutDescription[]
+        {
+            VertexPNCT.GetVertexLayout(),
+            InstanceData.GetVertexLayout(4) // Instance data starts at location 4
+        };
         
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             "Prepass",
             new PipelineDescription
             {
-                ShaderSet = context.ShaderCompiler.CompileShaderSet("DepthNormalPrepass", Array.Empty<VertexLayoutDescription>()),
+                ShaderSet = context.ShaderCompiler.CompileShaderSet("DepthNormalPrepass", vertexLayouts),
                 ResourceLayout = context.ResourceManager.GetOrCreateResourceLayout("Prepass", ShaderResourceLayouts.Prepass),
                 CullMode = CullMode.Back,
                 ColorFormat = TextureFormat.Rgba16Float,
@@ -53,7 +61,6 @@ public class Prepass : RenderPass
             pipeline.Description.ResourceLayout,
             new[] { constantsBuffer });
         
-        cmd.Begin();
         cmd.SetRenderTarget(renderTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.ClearColor(new Vector4(0, 0, 0, 1000f));
@@ -74,8 +81,6 @@ public class Prepass : RenderPass
             DrawBatch(cmd, batch, context);
         }
         
-        cmd.End();
-        context.Device.Submit(cmd);
     }
     
     private void DrawNode(ICommandList cmd, SceneNode node, RenderContext context)

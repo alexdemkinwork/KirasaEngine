@@ -22,19 +22,22 @@ public class CompositePass : RenderPass
     /// <inheritdoc/>
     public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var hdrTexture = context.ResourceManager.GetOrCreateTexture(
-            "Forward_HDR",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.Sampled));
+        var hdrTexture = context.RenderGraph.GetTexture(RenderGraphTextureUsage.HDR);
         
-        var bloomTexture = context.Settings.BloomActive
-            ? context.ResourceManager.GetOrCreateTexture(
-                "Bloom_B",
-                new TextureDescription(context.Width, context.Height, TextureFormat.Rgba16Float, TextureUsage.Sampled))
-            : null;
+        ITexture? bloomTexture = null;
+        try
+        {
+            bloomTexture = context.Settings.BloomActive
+                ? context.RenderGraph.GetTexture(RenderGraphTextureUsage.Bloom)
+                : null;
+        }
+        catch (KeyNotFoundException)
+        {
+            // Bloom texture not available, use HDR as fallback
+            bloomTexture = hdrTexture;
+        }
         
-        var ldrTarget = context.ResourceManager.CreateRenderTarget(
-            "Composite_LDR",
-            new TextureDescription(context.Width, context.Height, TextureFormat.Rgba8UNorm, TextureUsage.RenderTarget));
+        var ldrTarget = context.RenderGraph.GetRenderTarget(RenderGraphTextureUsage.LDR);
         
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             "Composite",
@@ -76,14 +79,11 @@ public class CompositePass : RenderPass
                 context.ResourceManager.GetOrCreateSampler("Clamp", new SamplerDescription(SamplerFilter.Linear, SamplerAddressMode.Clamp)),
             });
         
-        cmd.Begin();
         cmd.SetRenderTarget(ldrTarget);
         cmd.SetViewport(new Viewport(0, 0, context.Width, context.Height));
         cmd.SetPipeline(pipeline);
         cmd.SetResourceSet(0, resourceSet);
         cmd.Draw(3); // Fullscreen triangle
-        cmd.End();
-        context.Device.Submit(cmd);
     }
 }
 

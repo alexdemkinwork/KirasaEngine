@@ -2,6 +2,8 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+using KirasaEngine.MGL.Instancing;
+using KirasaEngine.MGL.Models;
 using KirasaEngine.MGL.Rendering;
 using KirasaEngine.MGL.Rendering.RenderGraph;
 
@@ -22,19 +24,19 @@ public class ShadowPass : RenderPass
     /// <inheritdoc/>
     public override void Execute(ICommandList cmd, RenderContext context)
     {
-        var target = context.ResourceManager.CreateRenderTarget(
-            "ShadowMap",
-            new TextureDescription(
-                context.Settings.ShadowMapResolution,
-                context.Settings.ShadowMapResolution,
-                TextureFormat.R32Float,
-                TextureUsage.RenderTarget));
+        var target = context.RenderGraph.GetRenderTarget(RenderGraphTextureUsage.ShadowMap);
+        
+        var vertexLayouts = new VertexLayoutDescription[]
+        {
+            VertexPNCT.GetVertexLayout(),
+            InstanceData.GetVertexLayout(4) // Instance data starts at location 4
+        };
         
         var pipeline = context.ResourceManager.GetOrCreatePipeline(
             "Shadow",
             new PipelineDescription
             {
-                ShaderSet = context.ShaderCompiler.CompileShaderSet("ShadowDepth", Array.Empty<VertexLayoutDescription>()),
+                ShaderSet = context.ShaderCompiler.CompileShaderSet("ShadowDepth", vertexLayouts),
                 ResourceLayout = context.ResourceManager.GetOrCreateResourceLayout("Shadow", ShaderResourceLayouts.Shadow),
                 CullMode = CullMode.None,
                 ColorFormat = TextureFormat.R32Float,
@@ -56,7 +58,6 @@ public class ShadowPass : RenderPass
             pipeline.Description.ResourceLayout,
             new[] { constantsBuffer });
         
-        cmd.Begin();
         cmd.SetRenderTarget(target);
         cmd.SetViewport(new Viewport(0, 0, target.Width, target.Height));
         cmd.ClearColor(new Vector4(1, 1, 1, 1));
@@ -77,8 +78,6 @@ public class ShadowPass : RenderPass
             DrawBatch(cmd, batch, context);
         }
         
-        cmd.End();
-        context.Device.Submit(cmd);
     }
     
     private void DrawNode(ICommandList cmd, SceneNode node, RenderContext context)
